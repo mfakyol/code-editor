@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Resize separators */
+.resize-separator {
+  background-color: #262626;
+  transition: background-color 0.15s ease;
+}
+
+.resize-separator:hover,
+.resize-separator[data-separator]:active {
+  background-color: rgb(99 102 241 / 0.6);
+}
+
+.resize-separator-vertical {
+  width: 6px;
+  min-width: 6px;
+}
+
+.resize-separator-horizontal {
+  height: 6px;
+  min-height: 6px;
+}
+
+@media (max-width: 767px) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+  }
+
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .resize-separator-vertical {
+    width: 10px;
+    min-width: 10px;
+  }
+
+  .resize-separator-horizontal {
+    height: 12px;
+    min-height: 12px;
+  }
+
+  [data-separator] {
+    touch-action: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .resize-separator-vertical {
+    width: 8px;
+    min-width: 8px;
+  }
+
+  .resize-separator-horizontal {
+    height: 8px;
+    min-height: 8px;
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "codepen-clone-server",
+  "version": "1.0.0",
+  "description": "CodePen clone backend — preprocessor compilation API",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "less": "^4.6.4",
+    "marked": "^18.0.5",
+    "pug": "^3.0.4",
+    "sass": "^1.100.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/less": "^3.0.8",
+    "@types/node": "^25.9.2",
+    "@types/pug": "^2.0.10"
+  }
+}
