@@ -12,20 +12,36 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^8.0.1",
+    "@babel/preset-react": "^8.0.1",
+    "bcryptjs": "^3.0.3",
+    "coffeescript": "^2.7.0",
+    "connect-mongo": "^6.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "haml": "^0.4.3",
     "less": "^4.6.4",
     "marked": "^18.0.5",
+    "mongoose": "^9.7.3",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "pug": "^3.0.4",
     "sass": "^1.100.0",
+    "stylus": "^0.64.0",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.20.5",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
     "@types/less": "^3.0.8",
     "@types/node": "^25.9.2",
-    "@types/pug": "^2.0.10"
+    "@types/passport": "^1.0.17",
+    "@types/passport-local": "^1.0.38",
+    "@types/pug": "^2.0.10",
+    "@types/stylus": "^0.48.43"
   }
 }

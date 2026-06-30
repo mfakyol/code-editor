@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { IconX } from '@tabler/icons-react'
+import ResourceList from '@/components/ResourceList'
 import { usePenSettings } from '@/contexts/PenSettingsContext'
 import type {
   CssPreprocessor,
@@ -7,16 +9,21 @@ import type {
   SettingsTab,
 } from '@/types/preprocessors'
 
-const tabs: { id: SettingsTab; label: string }[] = [
+type ModalTab = SettingsTab | 'scripts' | 'styles'
+
+const tabs: { id: ModalTab; label: string }[] = [
   { id: 'html', label: 'HTML' },
   { id: 'css', label: 'CSS' },
   { id: 'javascript', label: 'JS' },
+  { id: 'scripts', label: 'Scripts' },
+  { id: 'styles', label: 'Styles' },
 ]
 
 const htmlOptions: { value: HtmlPreprocessor; label: string }[] = [
   { value: 'none', label: 'None' },
   { value: 'pug', label: 'Pug' },
   { value: 'markdown', label: 'Markdown' },
+  { value: 'haml', label: 'Haml' },
 ]
 
 const cssOptions: { value: CssPreprocessor; label: string }[] = [
@@ -24,22 +31,25 @@ const cssOptions: { value: CssPreprocessor; label: string }[] = [
   { value: 'sass', label: 'Sass' },
   { value: 'scss', label: 'SCSS' },
   { value: 'less', label: 'Less' },
+  { value: 'stylus', label: 'Stylus' },
 ]
 
 const jsOptions: { value: JsPreprocessor; label: string }[] = [
   { value: 'none', label: 'None' },
   { value: 'typescript', label: 'TypeScript' },
+  { value: 'coffeescript', label: 'CoffeeScript' },
+  { value: 'babel', label: 'Babel (JSX)' },
 ]
 
 function PenSettingsModal() {
-  const {
-    isOpen,
-    activeTab,
-    settings,
-    closeSettings,
-    updateSettings,
-    setActiveTab,
-  } = usePenSettings()
+  const { isOpen, activeTab, settings, closeSettings, updateSettings } =
+    usePenSettings()
+  const [tab, setTab] = useState<ModalTab>(activeTab)
+
+  // Opening from an editor panel's gear should jump to that panel's tab.
+  useEffect(() => {
+    setTab(activeTab)
+  }, [activeTab])
 
   if (!isOpen) return null
 
@@ -66,33 +76,33 @@ function PenSettingsModal() {
             className="text-neutral-400 hover:text-neutral-100"
             aria-label="Close"
           >
-            ✕
+            <IconX className="h-5 w-5" stroke={1.75} />
           </button>
         </header>
 
         <div className="flex min-h-0 flex-1">
           <nav className="w-44 shrink-0 border-r border-neutral-700 bg-neutral-950 py-2">
-            {tabs.map((tab) => (
+            {tabs.map((item) => (
               <button
-                key={tab.id}
+                key={item.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => setTab(item.id)}
                 className={`relative w-full px-4 py-2.5 text-left text-sm ${
-                  activeTab === tab.id
+                  tab === item.id
                     ? 'bg-neutral-800 text-neutral-100'
                     : 'text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200'
                 }`}
               >
-                {activeTab === tab.id && (
+                {tab === item.id && (
                   <span className="absolute inset-y-1 left-0 w-1 rounded-r bg-emerald-500" />
                 )}
-                {tab.label}
+                {item.label}
               </button>
             ))}
           </nav>
 
           <div className="min-w-0 flex-1 overflow-auto p-6">
-            {activeTab === 'html' && (
+            {tab === 'html' && (
               <SettingField label="HTML Preprocessor">
                 <select
                   value={settings.htmlPreprocessor}
@@ -112,7 +122,7 @@ function PenSettingsModal() {
               </SettingField>
             )}
 
-            {activeTab === 'css' && (
+            {tab === 'css' && (
               <SettingField label="CSS Preprocessor">
                 <select
                   value={settings.cssPreprocessor}
@@ -132,7 +142,7 @@ function PenSettingsModal() {
               </SettingField>
             )}
 
-            {activeTab === 'javascript' && (
+            {tab === 'javascript' && (
               <SettingField label="JS Preprocessor">
                 <select
                   value={settings.jsPreprocessor}
@@ -150,6 +160,32 @@ function PenSettingsModal() {
                   ))}
                 </select>
               </SettingField>
+            )}
+
+            {tab === 'scripts' && (
+              <ResourceList
+                label="Harici Scriptler"
+                description="Bu URL'ler önizlemeye, JS kodun çalışmadan önce sırayla <script> olarak eklenir."
+                placeholder="https://cdn.example.com/library.js"
+                emptyText="Henüz script eklenmedi."
+                items={settings.externalScripts}
+                onChange={(items) =>
+                  updateSettings({ externalScripts: items })
+                }
+              />
+            )}
+
+            {tab === 'styles' && (
+              <ResourceList
+                label="Harici Stylesheet'ler"
+                description="Bu URL'ler önizlemenin <head> bölümüne <link rel=stylesheet> olarak, senin CSS'inden önce eklenir."
+                placeholder="https://cdn.example.com/library.css"
+                emptyText="Henüz stylesheet eklenmedi."
+                items={settings.externalStyles}
+                onChange={(items) =>
+                  updateSettings({ externalStyles: items })
+                }
+              />
             )}
           </div>
         </div>

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import EditorPanel from '@/components/EditorPanel'
 import EditorTabs from '@/components/EditorTabs'
@@ -6,8 +7,12 @@ import PenSettingsModal from '@/components/PenSettingsModal'
 import Preview from '@/components/Preview'
 import ResizeHandle from '@/components/ResizeHandle'
 import { PenSettingsProvider, usePenSettings } from '@/contexts/PenSettingsContext'
+import { useWorkspace } from '@/contexts/WorkspaceContext'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { usePreview } from '@/hooks/usePreview'
+import { penApi } from '@/config/api'
+import { formatCode } from '@/utils/formatCode'
+import { loadDraft, saveDraft } from '@/utils/draft'
 import {
   getEditorMode,
   getPanelLabel,
@@ -38,13 +43,145 @@ document.querySelector('p')?.addEventListener('click', () => {
 
 function EditorContent() {
   const isMobile = useIsMobile()
-  const { settings, openSettings } = usePenSettings()
+  const { settings, updateSettings, openSettings } = usePenSettings()
+  const {
+    title,
+    setTitle,
+    setPenId,
+    registerSource,
+    registerFormatter,
+    viewMode,
+    savedTick,
+    autoRun,
+  } = useWorkspace()
+  const { id } = useParams()
   const [activeTab, setActiveTab] = useState<SettingsTab>('html')
   const [html, setHtml] = useState(defaultHtml)
   const [css, setCss] = useState(defaultCss)
   const [js, setJs] = useState(defaultJs)
 
-  const { srcDoc, logs, reloadNonce } = usePreview({ html, css, js, settings })
+  const { srcDoc, logs, reloadNonce, clearLogs, pushLog } = usePreview({
+    html,
+    css,
+    js,
+    settings,
+    autoRun,
+  })
+
+  // Fingerprint of the current document, used for dirty detection.
+  const currentFp = JSON.stringify({ title, html, css, js, settings })
+  const currentFpRef = useRef(currentFp)
+  currentFpRef.current = currentFp
+  const baselineFpRef = useRef(currentFp)
+  const [dirty, setDirty] = useState(false)
+
+  useEffect(() => {
+    setDirty(currentFp !== baselineFpRef.current)
+  }, [currentFp])
+
+  // Restore an unsaved draft (guests / new pens) from localStorage on mount.
+  const restoredRef = useRef(false)
+  useEffect(() => {
+    if (restoredRef.current) return
+    restoredRef.current = true
+    if (id) return
+    const draft = loadDraft()
+    if (draft) {
+      setHtml(draft.html)
+      setCss(draft.css)
+      setJs(draft.js)
+      updateSettings(draft.settings)
+      setTitle(draft.title)
+      baselineFpRef.current = JSON.stringify({
+        title: draft.title,
+        html: draft.html,
+        css: draft.css,
+        js: draft.js,
+        settings: draft.settings,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Autosave the draft (debounced) while working on an unsaved pen.
+  useEffect(() => {
+    if (id) return
+    const timeout = window.setTimeout(() => {
+      saveDraft({ title, html, css, js, settings })
+    }, 500)
+    return () => window.clearTimeout(timeout)
+  }, [id, title, html, css, js, settings])
+
+  // After a successful save, the current document becomes the clean baseline.
+  useEffect(() => {
+    if (savedTick === 0) return
+    baselineFpRef.current = currentFpRef.current
+    setDirty(false)
+  }, [savedTick])
+
+  // Warn before leaving with unsaved changes.
+  useEffect(() => {
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!dirty) return
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
+
+  // Expose the current document to the Save button living in the header.
+  useEffect(() => {
+    registerSource(() => ({ html, css, js, settings }))
+  }, [html, css, js, settings, registerSource])
+
+  // Expose a formatter (Prettier) to the Format button in the header.
+  useEffect(() => {
+    registerFormatter(async () => {
+      const [fHtml, fCss, fJs] = await Promise.all([
+        formatCode(html, 'html', settings).catch(() => html),
+        formatCode(css, 'css', settings).catch(() => css),
+        formatCode(js, 'javascript', settings).catch(() => js),
+      ])
+      setHtml(fHtml)
+      setCss(fCss)
+      setJs(fJs)
+    })
+  }, [html, css, js, settings, registerFormatter])
+
+  // Load an existing pen when visiting /pen/:id; reset for a brand-new pen.
+  useEffect(() => {
+    if (!id) {
+      setPenId(null)
+      return
+    }
+
+    let active = true
+    penApi
+      .get(id)
+      .then(({ pen }) => {
+        if (!active) return
+        setHtml(pen.html)
+        setCss(pen.css)
+        setJs(pen.js)
+        updateSettings(pen.settings)
+        setTitle(pen.title)
+        setPenId(pen._id)
+        baselineFpRef.current = JSON.stringify({
+          title: pen.title,
+          html: pen.html,
+          css: pen.css,
+          js: pen.js,
+          settings: pen.settings,
+        })
+      })
+      .catch(() => {
+        // Not found / not owner — leave the editor as-is.
+      })
+    return () => {
+      active = false
+    }
+  }, [id, setHtml, setCss, setJs, updateSettings, setTitle, setPenId])
 
   const panelProps = {
     html: {
@@ -73,11 +210,88 @@ function EditorContent() {
     },
   }
 
+  // Editors arranged in a row (top view) or a column (left/right views).
+  const renderEditors = (orientation: 'horizontal' | 'vertical') => {
+    const sepClass =
+      orientation === 'horizontal'
+        ? 'resize-separator-vertical'
+        : 'resize-separator-horizontal'
+    const handleDir = orientation === 'horizontal' ? 'vertical' : 'horizontal'
+
+    return (
+      <Group orientation={orientation} className="h-full">
+        <Panel defaultSize={33.33} minSize={15}>
+          <EditorPanel {...panelProps.html} />
+        </Panel>
+
+        <Separator className={`resize-separator ${sepClass}`}>
+          <ResizeHandle direction={handleDir} />
+        </Separator>
+
+        <Panel defaultSize={33.33} minSize={15}>
+          <EditorPanel {...panelProps.css} />
+        </Panel>
+
+        <Separator className={`resize-separator ${sepClass}`}>
+          <ResizeHandle direction={handleDir} />
+        </Separator>
+
+        <Panel defaultSize={33.34} minSize={15}>
+          <EditorPanel {...panelProps.js} />
+        </Panel>
+      </Group>
+    )
+  }
+
+  const previewPanel = (
+    <Panel defaultSize={50} minSize={20}>
+      <Preview
+        srcDoc={srcDoc}
+        logs={logs}
+        reloadNonce={reloadNonce}
+        clearLogs={clearLogs}
+        pushLog={pushLog}
+      />
+    </Panel>
+  )
+
+  const renderDesktop = () => {
+    if (viewMode === 'top') {
+      return (
+        <Group key="top" orientation="vertical" className="h-full">
+          <Panel defaultSize={50} minSize={20}>
+            {renderEditors('horizontal')}
+          </Panel>
+          <Separator className="resize-separator resize-separator-horizontal">
+            <ResizeHandle direction="horizontal" />
+          </Separator>
+          {previewPanel}
+        </Group>
+      )
+    }
+
+    const editorsPanel = (
+      <Panel defaultSize={50} minSize={20}>
+        {renderEditors('vertical')}
+      </Panel>
+    )
+
+    return (
+      <Group key={viewMode} orientation="horizontal" className="h-full">
+        {viewMode === 'left' ? editorsPanel : previewPanel}
+        <Separator className="resize-separator resize-separator-vertical">
+          <ResizeHandle direction="vertical" />
+        </Separator>
+        {viewMode === 'left' ? previewPanel : editorsPanel}
+      </Group>
+    )
+  }
+
   return (
     <>
-      <Group orientation="vertical" className="h-full">
-        <Panel defaultSize={isMobile ? 55 : 50} minSize={isMobile ? 30 : 20}>
-          {isMobile ? (
+      {isMobile ? (
+        <Group orientation="vertical" className="h-full">
+          <Panel defaultSize={55} minSize={30}>
             <div className="flex h-full min-h-0 flex-col">
               <EditorTabs
                 active={activeTab}
@@ -96,39 +310,25 @@ function EditorContent() {
                 )}
               </div>
             </div>
-          ) : (
-            <Group orientation="horizontal" className="h-full">
-              <Panel defaultSize={33.33} minSize={15}>
-                <EditorPanel {...panelProps.html} />
-              </Panel>
+          </Panel>
 
-              <Separator className="resize-separator resize-separator-vertical">
-                <ResizeHandle direction="vertical" />
-              </Separator>
+          <Separator className="resize-separator resize-separator-horizontal">
+            <ResizeHandle direction="horizontal" />
+          </Separator>
 
-              <Panel defaultSize={33.33} minSize={15}>
-                <EditorPanel {...panelProps.css} />
-              </Panel>
-
-              <Separator className="resize-separator resize-separator-vertical">
-                <ResizeHandle direction="vertical" />
-              </Separator>
-
-              <Panel defaultSize={33.34} minSize={15}>
-                <EditorPanel {...panelProps.js} />
-              </Panel>
-            </Group>
-          )}
-        </Panel>
-
-        <Separator className="resize-separator resize-separator-horizontal">
-          <ResizeHandle direction="horizontal" />
-        </Separator>
-
-        <Panel defaultSize={isMobile ? 45 : 50} minSize={isMobile ? 25 : 20}>
-          <Preview srcDoc={srcDoc} logs={logs} reloadNonce={reloadNonce} />
-        </Panel>
-      </Group>
+          <Panel defaultSize={45} minSize={25}>
+            <Preview
+        srcDoc={srcDoc}
+        logs={logs}
+        reloadNonce={reloadNonce}
+        clearLogs={clearLogs}
+        pushLog={pushLog}
+      />
+          </Panel>
+        </Group>
+      ) : (
+        renderDesktop()
+      )}
 
       <PenSettingsModal />
     </>

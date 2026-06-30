@@ -10,6 +10,7 @@ type PreviewSource = {
   css: string
   js: string
   settings: PenSettings
+  autoRun?: boolean
 }
 
 export type ConsoleLog = {
@@ -29,13 +30,34 @@ function buildFingerprint(
   return JSON.stringify({ ...source, settings })
 }
 
-export function usePreview({ html, css, js, settings }: PreviewSource) {
+export function usePreview({
+  html,
+  css,
+  js,
+  settings,
+  autoRun = true,
+}: PreviewSource) {
   const { registerRunner } = usePreviewRunner()
   const [srcDoc, setSrcDoc] = useState('')
   const [logs, setLogs] = useState<ConsoleLog[]>([])
   const [reloadNonce, setReloadNonce] = useState(0)
   const lastFingerprintRef = useRef<string | null>(null)
   const logIdRef = useRef(0)
+
+  const clearLogs = useCallback(() => {
+    setLogs([])
+    logIdRef.current = 0
+  }, [])
+
+  const pushLog = useCallback(
+    (level: ConsoleLog['level'], message: string) => {
+      setLogs((current) => [
+        ...current,
+        { id: logIdRef.current++, level, message },
+      ])
+    },
+    [],
+  )
 
   const run = useCallback(
     async (options?: RunOptions) => {
@@ -59,7 +81,10 @@ export function usePreview({ html, css, js, settings }: PreviewSource) {
       const nextSrcDoc =
         compiled.errors.length > 0
           ? buildErrorDoc(compiled.errors)
-          : buildSrcDoc(compiled.html, compiled.css, compiled.js)
+          : buildSrcDoc(compiled.html, compiled.css, compiled.js, {
+              externalScripts: settings.externalScripts,
+              externalStyles: settings.externalStyles,
+            })
 
       setLogs([])
       logIdRef.current = 0
@@ -74,12 +99,13 @@ export function usePreview({ html, css, js, settings }: PreviewSource) {
   }, [registerRunner, run])
 
   useEffect(() => {
+    if (!autoRun) return
     const timeoutId = window.setTimeout(() => {
       void run()
     }, 400)
 
     return () => window.clearTimeout(timeoutId)
-  }, [html, css, js, settings, run])
+  }, [html, css, js, settings, run, autoRun])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -98,5 +124,5 @@ export function usePreview({ html, css, js, settings }: PreviewSource) {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  return { srcDoc, logs, reloadNonce, run }
+  return { srcDoc, logs, reloadNonce, run, clearLogs, pushLog }
 }
