@@ -13,6 +13,7 @@ export type AuthUser = {
 export type SavedPen = {
   _id: string
   title: string
+  isPublic: boolean
   html: string
   css: string
   js: string
@@ -24,12 +25,36 @@ export type SavedPen = {
 export type PenSummary = {
   _id: string
   title: string
+  isPublic: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+// A public pen as shown in the explore gallery (includes source for thumbnails).
+export type PublicPen = {
+  _id: string
+  title: string
+  html: string
+  css: string
+  js: string
+  settings: PenSettings
+  likeCount: number
+  ownerName: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type PenComment = {
+  _id: string
+  body: string
+  user: { _id: string; username: string }
   createdAt: string
   updatedAt: string
 }
 
 export type PenInput = {
   title: string
+  isPublic: boolean
   html: string
   css: string
   js: string
@@ -68,11 +93,49 @@ export const authApi = {
       body: JSON.stringify({ email, username, password }),
     }),
   logout: () => request<{ ok: true }>('/auth/logout', { method: 'POST' }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ ok: true }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
+}
+
+export const userApi = {
+  profile: (username: string) =>
+    request<{ user: { username: string }; pens: PublicPen[] }>(
+      `/users/${encodeURIComponent(username)}`,
+    ),
 }
 
 export const penApi = {
   list: () => request<{ pens: PenSummary[] }>('/pens'),
-  get: (id: string) => request<{ pen: SavedPen }>(`/pens/${id}`),
+  publicList: (sort: 'recent' | 'popular' = 'recent') =>
+    request<{ pens: PublicPen[] }>(`/pens/public?sort=${sort}`),
+  get: (id: string) =>
+    request<{
+      pen: SavedPen
+      isOwner: boolean
+      likeCount: number
+      commentCount: number
+      likedByMe: boolean
+    }>(`/pens/${id}`),
+  fork: (id: string) =>
+    request<{ pen: SavedPen }>(`/pens/${id}/fork`, { method: 'POST' }),
+  like: (id: string) =>
+    request<{ liked: boolean; likeCount: number }>(`/pens/${id}/like`, {
+      method: 'POST',
+    }),
+  comments: (id: string) =>
+    request<{ comments: PenComment[] }>(`/pens/${id}/comments`),
+  addComment: (id: string, body: string) =>
+    request<{ comment: PenComment }>(`/pens/${id}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ body }),
+    }),
+  deleteComment: (id: string, commentId: string) =>
+    request<{ ok: true }>(`/pens/${id}/comments/${commentId}`, {
+      method: 'DELETE',
+    }),
   create: (data: PenInput) =>
     request<{ pen: SavedPen }>('/pens', {
       method: 'POST',
@@ -82,6 +145,11 @@ export const penApi = {
     request<{ pen: SavedPen }>(`/pens/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+  setVisibility: (id: string, isPublic: boolean) =>
+    request<{ isPublic: boolean }>(`/pens/${id}/visibility`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isPublic }),
     }),
   remove: (id: string) =>
     request<{ ok: true }>(`/pens/${id}`, { method: 'DELETE' }),

@@ -28,6 +28,18 @@ type WorkspaceContextValue = {
   setTitle: (title: string) => void
   penId: string | null
   setPenId: (id: string | null) => void
+  isPublic: boolean
+  setIsPublic: (value: boolean) => void
+  isOwner: boolean
+  setIsOwner: (value: boolean) => void
+  likeCount: number
+  likedByMe: boolean
+  commentCount: number
+  setSocial: (state: {
+    likeCount: number
+    likedByMe: boolean
+    commentCount: number
+  }) => void
   registerSource: (getter: SourceGetter) => void
   getSource: () => PenSource | null
   registerFormatter: (formatter: Formatter) => void
@@ -63,6 +75,21 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null)
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [title, setTitle] = useState('Untitled Pen')
   const [penId, setPenId] = useState<string | null>(null)
+  // A brand-new (unsaved) pen belongs to whoever saves it, so default to owner.
+  const [isPublic, setIsPublic] = useState(false)
+  const [isOwner, setIsOwner] = useState(true)
+  const [likeCount, setLikeCount] = useState(0)
+  const [likedByMe, setLikedByMe] = useState(false)
+  const [commentCount, setCommentCount] = useState(0)
+
+  const setSocial = useCallback(
+    (state: { likeCount: number; likedByMe: boolean; commentCount: number }) => {
+      setLikeCount(state.likeCount)
+      setLikedByMe(state.likedByMe)
+      setCommentCount(state.commentCount)
+    },
+    [],
+  )
   const [viewMode, setViewModeState] = useState<ViewMode>(() =>
     readStored<ViewMode>('codeeditor:viewMode', 'top', (raw) =>
       raw === 'left' || raw === 'right' ? raw : 'top',
@@ -153,6 +180,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setTitle,
         penId,
         setPenId,
+        isPublic,
+        setIsPublic,
+        isOwner,
+        setIsOwner,
+        likeCount,
+        likedByMe,
+        commentCount,
+        setSocial,
         registerSource,
         getSource,
         registerFormatter,

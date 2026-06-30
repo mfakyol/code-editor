@@ -23,6 +23,12 @@ function Header() {
       >
         Editor
       </Link>
+      <Link
+        to="/explore"
+        className="text-sm text-neutral-400 hover:text-neutral-100"
+      >
+        Keşfet
+      </Link>
       {user && (
         <Link
           to="/pens"
@@ -35,7 +41,18 @@ function Header() {
       <div className="ml-auto flex items-center gap-3 sm:gap-4">
         {user ? (
           <>
-            <span className="text-sm text-neutral-300">{user.username}</span>
+            <Link
+              to={`/u/${user.username}`}
+              className="text-sm text-neutral-300 hover:text-neutral-100"
+            >
+              {user.username}
+            </Link>
+            <Link
+              to="/account"
+              className="text-sm text-neutral-400 hover:text-neutral-100"
+            >
+              Hesap
+            </Link>
             <button
               type="button"
               onClick={handleLogout}

@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
 import { Pen } from '../models/Pen'
+import { Like } from '../models/Like'
+import { Comment } from '../models/Comment'
 
 type PenInput = {
   title?: unknown
@@ -54,8 +56,61 @@ export async function listPens(
   try {
     const pens = await Pen.find({ owner: req.user!.id })
       .sort({ updatedAt: -1 })
-      .select('title updatedAt createdAt')
+      .select('title isPublic updatedAt createdAt')
       .lean()
+    res.json({ pens })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Public explore gallery: every public pen with its owner + like count.
+// ?sort=popular orders by likes, otherwise newest first. Includes source so
+// the gallery can render live thumbnail previews.
+export async function listPublicPens(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 48, 100)
+    const popular = req.query.sort === 'popular'
+
+    const pens = await Pen.aggregate([
+      { $match: { isPublic: true } },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'pen',
+          as: 'likes',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'owner',
+          foreignField: '_id',
+          as: 'ownerDoc',
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          html: 1,
+          css: 1,
+          js: 1,
+          settings: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          likeCount: { $size: '$likes' },
+          ownerName: { $arrayElemAt: ['$ownerDoc.username', 0] },
+        },
+      },
+      { $sort: popular ? { likeCount: -1, updatedAt: -1 } : { updatedAt: -1 } },
+      { $limit: limit },
+    ])
+
     res.json({ pens })
   } catch (error) {
     next(error)
@@ -82,7 +137,17 @@ export async function getPen(
       res.status(403).json({ message: 'This pen is private' })
       return
     }
-    res.json({ pen, isOwner })
+
+    const penId = String(req.params.id)
+    const [likeCount, commentCount, likedByMe] = await Promise.all([
+      Like.countDocuments({ pen: penId }),
+      Comment.countDocuments({ pen: penId }),
+      req.user
+        ? Like.exists({ pen: penId, user: req.user.id }).then(Boolean)
+        : Promise.resolve(false),
+    ])
+
+    res.json({ pen, isOwner, likeCount, commentCount, likedByMe })
   } catch (error) {
     next(error)
   }
@@ -189,6 +254,36 @@ export async function deletePen(
     }
     await pen.deleteOne()
     res.json({ ok: true })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Persist only a pen's visibility. Kept separate from updatePen so the editor
+// can flip public/private immediately (keeping share links truthful) without
+// having to save the whole document.
+export async function setVisibility(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!Types.ObjectId.isValid(String(req.params.id))) {
+      res.status(404).json({ message: 'Pen not found' })
+      return
+    }
+    const pen = await Pen.findById(String(req.params.id))
+    if (!pen) {
+      res.status(404).json({ message: 'Pen not found' })
+      return
+    }
+    if (String(pen.owner) !== req.user!.id) {
+      res.status(403).json({ message: 'Not your pen' })
+      return
+    }
+    pen.isPublic = (req.body as { isPublic?: unknown })?.isPublic === true
+    await pen.save()
+    res.json({ isPublic: pen.isPublic })
   } catch (error) {
     next(error)
   }

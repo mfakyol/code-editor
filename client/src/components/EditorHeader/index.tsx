@@ -3,12 +3,19 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   IconArrowLeft,
   IconDeviceFloppy,
+  IconEye,
+  IconGitFork,
+  IconHeart,
+  IconHeartFilled,
   IconLayout,
   IconLayoutNavbar,
   IconLayoutSidebar,
   IconLayoutSidebarRight,
+  IconLock,
   IconPlayerPlayFilled,
+  IconShare,
   IconWand,
+  IconWorld,
 } from '@tabler/icons-react'
 import AuthModal, { type AuthMode } from '@/components/AuthModal'
 import { usePreviewRunner } from '@/contexts/PreviewRunnerContext'
@@ -47,6 +54,14 @@ function EditorHeader() {
     setTitle,
     penId,
     setPenId,
+    isPublic,
+    setIsPublic,
+    isOwner,
+    setIsOwner,
+    likeCount,
+    likedByMe,
+    commentCount,
+    setSocial,
     getSource,
     format,
     viewMode,
@@ -61,11 +76,19 @@ function EditorHeader() {
   } = useWorkspace()
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
+  const [forking, setForking] = useState(false)
   const [formatting, setFormatting] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
   const [authMode, setAuthMode] = useState<AuthMode | null>(null)
   const [viewOpen, setViewOpen] = useState(false)
   const pendingSave = useRef(false)
+  const pendingFork = useRef(false)
+  const pendingLike = useRef(false)
+
+  const flashStatus = (message: string) => {
+    setStatus(message)
+    window.setTimeout(() => setStatus(null), 2000)
+  }
 
   const doSave = async () => {
     const source = getSource()
@@ -74,18 +97,18 @@ function EditorHeader() {
     setSaving(true)
     setStatus(null)
     try {
-      const payload = { title, ...source }
+      const payload = { title, isPublic, ...source }
       if (penId) {
         await penApi.update(penId, payload)
       } else {
         const { pen } = await penApi.create(payload)
         setPenId(pen._id)
+        setIsOwner(true)
         clearDraft()
         navigate(`/pen/${pen._id}`)
       }
       markSaved()
-      setStatus('Kaydedildi')
-      window.setTimeout(() => setStatus(null), 2000)
+      flashStatus('Kaydedildi')
     } catch (err) {
       setStatus(err instanceof Error ? err.message : 'Kaydedilemedi')
     } finally {
@@ -93,7 +116,104 @@ function EditorHeader() {
     }
   }
 
+  const doFork = async () => {
+    // Fork captures the *current* editor content (including unsaved tweaks),
+    // matching CodePen — not whatever was last persisted on the server.
+    const source = getSource()
+    if (!source) return
+    setForking(true)
+    setStatus(null)
+    try {
+      const forkTitle = `${title} (fork)`
+      const { pen } = await penApi.create({
+        title: forkTitle,
+        isPublic: false,
+        ...source,
+      })
+      setPenId(pen._id)
+      setIsOwner(true)
+      setIsPublic(false)
+      setTitle(forkTitle)
+      markSaved()
+      navigate(`/pen/${pen._id}`)
+      flashStatus('Fork oluşturuldu')
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : 'Fork oluşturulamadı')
+    } finally {
+      setForking(false)
+    }
+  }
+
+  const handleFork = () => {
+    if (!user) {
+      pendingFork.current = true
+      setAuthMode('login')
+      return
+    }
+    void doFork()
+  }
+
+  const doLike = async () => {
+    if (!penId) return
+    try {
+      const { liked, likeCount: count } = await penApi.like(penId)
+      setSocial({ likeCount: count, likedByMe: liked, commentCount })
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : 'Beğenilemedi')
+    }
+  }
+
+  const handleLike = () => {
+    if (!user) {
+      pendingLike.current = true
+      setAuthMode('login')
+      return
+    }
+    void doLike()
+  }
+
+  const handleShare = async () => {
+    if (!penId) {
+      flashStatus('Önce pen’i kaydet')
+      return
+    }
+    const url = `${window.location.origin}/pen/${penId}`
+    try {
+      await navigator.clipboard.writeText(url)
+      flashStatus(
+        isPublic
+          ? 'Bağlantı kopyalandı'
+          : 'Özel pen — sadece sen açabilirsin. Bağlantı kopyalandı',
+      )
+    } catch {
+      // Clipboard blocked (e.g. insecure context) — show the link instead.
+      window.prompt('Paylaşım bağlantısı:', url)
+    }
+  }
+
+  const handleTogglePublic = async () => {
+    const nextValue = !isPublic
+    setIsPublic(nextValue) // optimistic
+
+    // For a saved pen, persist immediately so share links stay truthful.
+    // For an unsaved pen the value rides along on the first save.
+    if (penId) {
+      try {
+        await penApi.setVisibility(penId, nextValue)
+        flashStatus(nextValue ? 'Herkese açık yapıldı' : 'Gizli yapıldı')
+      } catch (err) {
+        setIsPublic(!nextValue) // revert on failure
+        setStatus(err instanceof Error ? err.message : 'Güncellenemedi')
+      }
+    }
+  }
+
   const handleSave = () => {
+    // Viewing someone else's pen — saving isn't allowed, fork instead.
+    if (penId && !isOwner) {
+      flashStatus('Bu pen sana ait değil — forkla')
+      return
+    }
     if (!user) {
       // Open the auth modal and resume saving once authenticated.
       pendingSave.current = true
@@ -109,10 +229,20 @@ function EditorHeader() {
       pendingSave.current = false
       void doSave()
     }
+    if (pendingFork.current) {
+      pendingFork.current = false
+      void doFork()
+    }
+    if (pendingLike.current) {
+      pendingLike.current = false
+      void doLike()
+    }
   }
 
   const handleCloseAuth = () => {
     pendingSave.current = false
+    pendingFork.current = false
+    pendingLike.current = false
     setAuthMode(null)
   }
 
@@ -180,8 +310,18 @@ function EditorHeader() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Untitled Pen"
           aria-label="Pen başlığı"
+          readOnly={Boolean(penId) && !isOwner}
           className="min-w-0 max-w-[40vw] truncate rounded border border-transparent bg-transparent px-1.5 py-1 text-xs font-medium hover:border-neutral-700 focus:border-indigo-500 focus:outline-none sm:text-sm"
         />
+        {penId && !isOwner && (
+          <span
+            title="Bu pen sana ait değil — kaydetmek için forkla"
+            className="hidden shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-400 sm:inline-flex"
+          >
+            <IconEye className="h-3 w-3" stroke={2} />
+            Salt-okunur
+          </span>
+        )}
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -333,16 +473,97 @@ function EditorHeader() {
           </span>
         </button>
 
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={saving}
-          title="Kaydet (Ctrl/Cmd + S)"
-          className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-3 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 disabled:opacity-50 sm:text-sm"
-        >
-          <IconDeviceFloppy className="h-4 w-4" stroke={1.75} />
-          {saving ? 'Kaydediliyor...' : 'Kaydet'}
-        </button>
+        {isOwner && (
+          <button
+            type="button"
+            onClick={handleTogglePublic}
+            title={
+              isPublic
+                ? 'Herkese açık — gizli yapmak için tıkla'
+                : 'Gizli — herkese açık yapmak için tıkla'
+            }
+            aria-label="Görünürlüğü değiştir"
+            aria-pressed={isPublic}
+            className={`hidden items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs sm:inline-flex sm:text-sm ${
+              isPublic
+                ? 'bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30'
+                : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+            }`}
+          >
+            {isPublic ? (
+              <IconWorld className="h-4 w-4" stroke={1.75} />
+            ) : (
+              <IconLock className="h-4 w-4" stroke={1.75} />
+            )}
+            <span className="hidden md:inline">
+              {isPublic ? 'Herkese açık' : 'Gizli'}
+            </span>
+          </button>
+        )}
+
+        {penId && (
+          <button
+            type="button"
+            onClick={handleLike}
+            title={likedByMe ? 'Beğeniyi geri al' : 'Beğen'}
+            aria-label="Beğen"
+            aria-pressed={likedByMe}
+            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs sm:text-sm ${
+              likedByMe
+                ? 'bg-rose-600/20 text-rose-400 hover:bg-rose-600/30'
+                : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+            }`}
+          >
+            {likedByMe ? (
+              <IconHeartFilled className="h-4 w-4" />
+            ) : (
+              <IconHeart className="h-4 w-4" stroke={1.75} />
+            )}
+            {likeCount > 0 && <span>{likeCount}</span>}
+          </button>
+        )}
+
+        {penId && (
+          <button
+            type="button"
+            onClick={handleShare}
+            title="Paylaşım bağlantısını kopyala"
+            aria-label="Paylaş"
+            className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 sm:text-sm"
+          >
+            <IconShare className="h-4 w-4" stroke={1.75} />
+            <span className="hidden sm:inline">Paylaş</span>
+          </button>
+        )}
+
+        {penId && (
+          <button
+            type="button"
+            onClick={handleFork}
+            disabled={forking}
+            title="Bu pen’i forkla (kendi kopyanı oluştur)"
+            aria-label="Fork"
+            className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 disabled:opacity-50 sm:text-sm"
+          >
+            <IconGitFork className="h-4 w-4" stroke={1.75} />
+            <span className="hidden sm:inline">
+              {forking ? '...' : 'Fork'}
+            </span>
+          </button>
+        )}
+
+        {isOwner && (
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            title="Kaydet (Ctrl/Cmd + S)"
+            className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-3 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 disabled:opacity-50 sm:text-sm"
+          >
+            <IconDeviceFloppy className="h-4 w-4" stroke={1.75} />
+            {saving ? 'Kaydediliyor...' : 'Kaydet'}
+          </button>
+        )}
 
         <button
           type="button"

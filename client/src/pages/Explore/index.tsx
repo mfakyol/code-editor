@@ -1,0 +1,80 @@
+import { useEffect, useState } from 'react'
+import { penApi, type PublicPen } from '@/config/api'
+import { GalleryGridSkeleton } from '@/components/Skeleton'
+import PenCard from '@/components/PenCard'
+
+type SortMode = 'recent' | 'popular'
+
+function Explore() {
+  const [pens, setPens] = useState<PublicPen[]>([])
+  const [sort, setSort] = useState<SortMode>('recent')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    setError(null)
+    penApi
+      .publicList(sort)
+      .then((res) => {
+        if (active) setPens(res.pens)
+      })
+      .catch((err) => {
+        if (active)
+          setError(err instanceof Error ? err.message : 'Pen’ler yüklenemedi')
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [sort])
+
+  return (
+    <div className="mx-auto h-full w-full max-w-6xl overflow-auto px-4 py-8 sm:px-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">Keşfet</h1>
+        <div className="flex items-center rounded-md bg-neutral-800 p-0.5 text-sm">
+          {(['recent', 'popular'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setSort(mode)}
+              className={`rounded px-3 py-1.5 ${
+                sort === mode
+                  ? 'bg-neutral-700 text-neutral-100'
+                  : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              {mode === 'recent' ? 'Yeni' : 'Popüler'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {error && (
+        <p className="mb-4 rounded-md bg-red-950 px-3 py-2 text-sm text-red-300">
+          {error}
+        </p>
+      )}
+
+      {loading ? (
+        <GalleryGridSkeleton />
+      ) : pens.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-neutral-700 p-10 text-center text-neutral-400">
+          Henüz herkese açık pen yok. İlk paylaşan sen ol!
+        </div>
+      ) : (
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {pens.map((pen) => (
+            <PenCard key={pen._id} pen={pen} />
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+export default Explore

@@ -1,6 +1,10 @@
 import type { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import { User, hashPassword } from '../models/User'
+import {
+  User,
+  hashPassword,
+  verifyPassword,
+} from '../models/User'
 
 type PublicUser = { id: string; email: string; username: string }
 
@@ -38,6 +42,12 @@ export async function register(
     const existing = await User.findOne({ email })
     if (existing) {
       res.status(409).json({ message: 'Email already registered' })
+      return
+    }
+
+    const usernameTaken = await User.findOne({ username })
+    if (usernameTaken) {
+      res.status(409).json({ message: 'Username already taken' })
       return
     }
 
@@ -99,4 +109,40 @@ export function me(req: Request, res: Response): void {
     return
   }
   res.json({ user: null })
+}
+
+export async function changePassword(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const currentPassword = String(req.body?.currentPassword ?? '')
+    const newPassword = String(req.body?.newPassword ?? '')
+
+    if (newPassword.length < 6) {
+      res
+        .status(400)
+        .json({ message: 'New password must be at least 6 characters' })
+      return
+    }
+
+    const user = await User.findById(req.user!.id)
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    const valid = await verifyPassword(currentPassword, user.passwordHash)
+    if (!valid) {
+      res.status(401).json({ message: 'Current password is incorrect' })
+      return
+    }
+
+    user.passwordHash = await hashPassword(newPassword)
+    await user.save()
+    res.json({ ok: true })
+  } catch (error) {
+    next(error)
+  }
 }

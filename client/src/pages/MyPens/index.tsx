@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import { IconPlus, IconTrash, IconCode } from '@tabler/icons-react'
+import {
+  IconPlus,
+  IconTrash,
+  IconCode,
+  IconWorld,
+  IconLock,
+} from '@tabler/icons-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { penApi, type PenSummary } from '@/config/api'
+import { PenListSkeleton } from '@/components/Skeleton'
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString()
@@ -81,7 +88,7 @@ function MyPens() {
       )}
 
       {loading ? (
-        <p className="text-neutral-400">Yükleniyor...</p>
+        <PenListSkeleton />
       ) : pens.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-700 p-10 text-center">
           <p className="text-neutral-400">Henüz kayıtlı pen’in yok.</p>
@@ -104,7 +111,20 @@ function MyPens() {
                   <IconCode className="h-5 w-5" stroke={2} />
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate font-medium">{pen.title}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="truncate font-medium">{pen.title}</span>
+                    {pen.isPublic ? (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-600/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                        <IconWorld className="h-3 w-3" stroke={2} />
+                        Açık
+                      </span>
+                    ) : (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-neutral-400">
+                        <IconLock className="h-3 w-3" stroke={2} />
+                        Gizli
+                      </span>
+                    )}
+                  </span>
                   <span className="block text-xs text-neutral-500">
                     {formatDate(pen.updatedAt)}
                   </span>

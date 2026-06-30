@@ -48,6 +48,9 @@ function EditorContent() {
     title,
     setTitle,
     setPenId,
+    setIsPublic,
+    setIsOwner,
+    setSocial,
     registerSource,
     registerFormatter,
     viewMode,
@@ -68,7 +71,8 @@ function EditorContent() {
     autoRun,
   })
 
-  // Fingerprint of the current document, used for dirty detection.
+  // Fingerprint of the current document, used for dirty detection. Visibility
+  // is persisted independently (PATCH on toggle), so it isn't part of this.
   const currentFp = JSON.stringify({ title, html, css, js, settings })
   const currentFpRef = useRef(currentFp)
   currentFpRef.current = currentFp
@@ -153,13 +157,16 @@ function EditorContent() {
   useEffect(() => {
     if (!id) {
       setPenId(null)
+      setIsPublic(false)
+      setIsOwner(true)
+      setSocial({ likeCount: 0, likedByMe: false, commentCount: 0 })
       return
     }
 
     let active = true
     penApi
       .get(id)
-      .then(({ pen }) => {
+      .then(({ pen, isOwner, likeCount, commentCount, likedByMe }) => {
         if (!active) return
         setHtml(pen.html)
         setCss(pen.css)
@@ -167,6 +174,9 @@ function EditorContent() {
         updateSettings(pen.settings)
         setTitle(pen.title)
         setPenId(pen._id)
+        setIsPublic(pen.isPublic)
+        setIsOwner(isOwner)
+        setSocial({ likeCount, likedByMe, commentCount })
         baselineFpRef.current = JSON.stringify({
           title: pen.title,
           html: pen.html,
@@ -181,7 +191,18 @@ function EditorContent() {
     return () => {
       active = false
     }
-  }, [id, setHtml, setCss, setJs, updateSettings, setTitle, setPenId])
+  }, [
+    id,
+    setHtml,
+    setCss,
+    setJs,
+    updateSettings,
+    setTitle,
+    setPenId,
+    setIsPublic,
+    setIsOwner,
+    setSocial,
+  ])
 
   const panelProps = {
     html: {
