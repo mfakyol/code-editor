@@ -6,9 +6,14 @@ import type {
   JsPreprocessor,
 } from '../types/preprocessors'
 
-const HTML_PREPROCESSORS: HtmlPreprocessor[] = ['none', 'pug', 'markdown']
-const CSS_PREPROCESSORS: CssPreprocessor[] = ['none', 'sass', 'scss', 'less']
-const JS_PREPROCESSORS: JsPreprocessor[] = ['none', 'typescript']
+const HTML_PREPROCESSORS: HtmlPreprocessor[] = ['none', 'pug', 'markdown', 'haml']
+const CSS_PREPROCESSORS: CssPreprocessor[] = ['none', 'sass', 'scss', 'less', 'stylus']
+const JS_PREPROCESSORS: JsPreprocessor[] = [
+  'none',
+  'typescript',
+  'coffeescript',
+  'babel',
+]
 
 function isString(value: unknown): value is string {
   return typeof value === 'string'

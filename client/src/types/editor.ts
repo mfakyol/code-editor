@@ -4,5 +4,8 @@ export type EditorMode =
   | 'css'
   | 'scss'
   | 'less'
+  | 'stylus'
   | 'javascript'
   | 'typescript'
+  | 'coffeescript'
+  | 'jsx'

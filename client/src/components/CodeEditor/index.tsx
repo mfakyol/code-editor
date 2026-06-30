@@ -3,9 +3,25 @@ import { html } from '@codemirror/lang-html'
 import { css } from '@codemirror/lang-css'
 import { javascript } from '@codemirror/lang-javascript'
 import { markdown } from '@codemirror/lang-markdown'
+import { StreamLanguage } from '@codemirror/language'
+import { coffeeScript } from '@codemirror/legacy-modes/mode/coffeescript'
+import { stylus as stylusMode } from '@codemirror/legacy-modes/mode/stylus'
+import { EditorView } from '@codemirror/view'
 import { dracula } from '@uiw/codemirror-theme-dracula'
+import { githubDark, githubLight } from '@uiw/codemirror-theme-github'
+import { abbreviationTracker } from '@emmetio/codemirror6-plugin'
 import type { Extension } from '@codemirror/state'
 import type { EditorMode } from '@/types/editor'
+import { useWorkspace, type EditorTheme } from '@/contexts/WorkspaceContext'
+
+const themeMap: Record<EditorTheme, Extension> = {
+  dracula,
+  githubDark,
+  githubLight,
+}
+
+// Emmet abbreviation expansion (Tab) for markup/style editors.
+const emmetModes: EditorMode[] = ['html', 'css', 'scss', 'less']
 
 type CodeEditorProps = {
   value: string
@@ -19,17 +35,30 @@ const modeExtensions: Record<EditorMode, Extension> = {
   css: css(),
   scss: css(),
   less: css(),
+  stylus: StreamLanguage.define(stylusMode),
   javascript: javascript(),
   typescript: javascript({ typescript: true }),
+  jsx: javascript({ jsx: true }),
+  coffeescript: StreamLanguage.define(coffeeScript),
 }
 
 function CodeEditor({ value, mode, onChange }: CodeEditorProps) {
+  const { fontSize, editorTheme } = useWorkspace()
+  const fontTheme = EditorView.theme({
+    '&': { fontSize: `${fontSize}px` },
+  })
+
+  const extensions = [modeExtensions[mode], fontTheme]
+  if (emmetModes.includes(mode)) {
+    extensions.push(abbreviationTracker())
+  }
+
   return (
     <CodeMirror
       value={value}
       height="100%"
-      theme={dracula}
-      extensions={[modeExtensions[mode]]}
+      theme={themeMap[editorTheme]}
+      extensions={extensions}
       onChange={onChange}
       basicSetup={{
         lineNumbers: true,
