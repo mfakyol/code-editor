@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { IconX } from '@tabler/icons-react'
 import ResourceList from '@/components/ResourceList'
 import { usePenSettings } from '@/contexts/PenSettingsContext'
+import { useI18n } from '@/i18n/I18nContext'
 import type {
   CssPreprocessor,
   HtmlPreprocessor,
@@ -44,6 +45,7 @@ const jsOptions: { value: JsPreprocessor; label: string }[] = [
 function PenSettingsModal() {
   const { isOpen, activeTab, settings, closeSettings, updateSettings } =
     usePenSettings()
+  const { t } = useI18n()
   const [tab, setTab] = useState<ModalTab>(activeTab)
 
   // Opening from an editor panel's gear should jump to that panel's tab.
@@ -68,13 +70,13 @@ function PenSettingsModal() {
       >
         <header className="flex items-center justify-between border-b border-neutral-700 px-5 py-4">
           <h2 id="pen-settings-title" className="text-lg font-semibold text-neutral-100">
-            Pen Settings
+            {t('penSettings.title')}
           </h2>
           <button
             type="button"
             onClick={closeSettings}
             className="text-neutral-400 hover:text-neutral-100"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <IconX className="h-5 w-5" stroke={1.75} />
           </button>
@@ -164,10 +166,10 @@ function PenSettingsModal() {
 
             {tab === 'scripts' && (
               <ResourceList
-                label="Harici Scriptler"
-                description="Bu URL'ler önizlemeye, JS kodun çalışmadan önce sırayla <script> olarak eklenir."
+                label={t('res.scripts.label')}
+                description={t('res.scripts.desc')}
                 placeholder="https://cdn.example.com/library.js"
-                emptyText="Henüz script eklenmedi."
+                emptyText={t('res.scripts.empty')}
                 items={settings.externalScripts}
                 onChange={(items) =>
                   updateSettings({ externalScripts: items })
@@ -177,10 +179,10 @@ function PenSettingsModal() {
 
             {tab === 'styles' && (
               <ResourceList
-                label="Harici Stylesheet'ler"
-                description="Bu URL'ler önizlemenin <head> bölümüne <link rel=stylesheet> olarak, senin CSS'inden önce eklenir."
+                label={t('res.styles.label')}
+                description={t('res.styles.desc')}
                 placeholder="https://cdn.example.com/library.css"
-                emptyText="Henüz stylesheet eklenmedi."
+                emptyText={t('res.styles.empty')}
                 items={settings.externalStyles}
                 onChange={(items) =>
                   updateSettings({ externalStyles: items })
@@ -196,7 +198,7 @@ function PenSettingsModal() {
             onClick={closeSettings}
             className="rounded-md bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500"
           >
-            Close
+            {t('common.close')}
           </button>
         </footer>
       </div>

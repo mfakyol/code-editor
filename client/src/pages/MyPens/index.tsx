@@ -8,6 +8,7 @@ import {
   IconLock,
 } from '@tabler/icons-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
 import { penApi, type PenSummary } from '@/config/api'
 import { PenListSkeleton } from '@/components/Skeleton'
 
@@ -17,6 +18,7 @@ function formatDate(iso: string): string {
 
 function MyPens() {
   const { user, loading: authLoading } = useAuth()
+  const { t } = useI18n()
   const [pens, setPens] = useState<PenSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +35,7 @@ function MyPens() {
       })
       .catch((err) => {
         if (active)
-          setError(err instanceof Error ? err.message : 'Pen’ler yüklenemedi')
+          setError(err instanceof Error ? err.message : t('myPens.loadFailed'))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -46,7 +48,7 @@ function MyPens() {
   if (authLoading) {
     return (
       <div className="flex h-full items-center justify-center text-neutral-400">
-        Yükleniyor...
+        {t('common.loading')}
       </div>
     )
   }
@@ -56,13 +58,13 @@ function MyPens() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Bu pen silinsin mi?')) return
+    if (!window.confirm(t('myPens.confirmDelete'))) return
     setDeletingId(id)
     try {
       await penApi.remove(id)
       setPens((current) => current.filter((pen) => pen._id !== id))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Silinemedi')
+      setError(err instanceof Error ? err.message : t('myPens.deleteFailed'))
     } finally {
       setDeletingId(null)
     }
@@ -71,13 +73,13 @@ function MyPens() {
   return (
     <div className="mx-auto h-full w-full max-w-4xl overflow-auto px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Pen’lerim</h1>
+        <h1 className="text-2xl font-semibold">{t('myPens.title')}</h1>
         <Link
           to="/editor"
           className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium hover:bg-indigo-500"
         >
           <IconPlus className="h-4 w-4" stroke={2} />
-          Yeni Pen
+          {t('myPens.new')}
         </Link>
       </div>
 
@@ -91,12 +93,12 @@ function MyPens() {
         <PenListSkeleton />
       ) : pens.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-700 p-10 text-center">
-          <p className="text-neutral-400">Henüz kayıtlı pen’in yok.</p>
+          <p className="text-neutral-400">{t('myPens.empty')}</p>
           <Link
             to="/editor"
             className="mt-3 inline-block text-indigo-400 hover:text-indigo-300"
           >
-            İlk pen’ini oluştur →
+            {t('myPens.createFirst')}
           </Link>
         </div>
       ) : (
@@ -116,12 +118,12 @@ function MyPens() {
                     {pen.isPublic ? (
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-600/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
                         <IconWorld className="h-3 w-3" stroke={2} />
-                        Açık
+                        {t('myPens.public')}
                       </span>
                     ) : (
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-neutral-400">
                         <IconLock className="h-3 w-3" stroke={2} />
-                        Gizli
+                        {t('myPens.private')}
                       </span>
                     )}
                   </span>
@@ -135,7 +137,7 @@ function MyPens() {
                 onClick={() => handleDelete(pen._id)}
                 disabled={deletingId === pen._id}
                 className="shrink-0 rounded-md p-2 text-neutral-400 hover:bg-neutral-800 hover:text-red-400 disabled:opacity-50"
-                aria-label="Pen’i sil"
+                aria-label={t('myPens.deleteAria')}
               >
                 <IconTrash className="h-4 w-4" stroke={1.75} />
               </button>

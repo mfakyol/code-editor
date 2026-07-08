@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { IconPlus, IconTrash, IconSearch, IconLoader2 } from '@tabler/icons-react'
 import { searchCdn, type CdnLib } from '@/utils/cdn'
+import { useI18n } from '@/i18n/I18nContext'
 
 type ResourceListProps = {
   label: string
@@ -19,6 +20,7 @@ function ResourceList({
   items,
   onChange,
 }: ResourceListProps) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CdnLib[]>([])
   const [searching, setSearching] = useState(false)
@@ -53,7 +55,7 @@ function ResourceList({
         .catch(() => {
           if (id === requestId.current) {
             setResults([])
-            setSearchError('CDN araması başarısız')
+            setSearchError(t('res.searchFailed'))
           }
         })
         .finally(() => {
@@ -77,7 +79,7 @@ function ResourceList({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="CDN'de ara (ör. bootstrap, lodash)"
+          placeholder={t('res.searchPlaceholder')}
           className="w-full rounded-md border border-neutral-700 bg-neutral-800 py-2 pl-8 pr-8 text-sm text-neutral-100 outline-none focus:border-indigo-500"
         />
         {searching && (
@@ -135,7 +137,7 @@ function ResourceList({
               type="button"
               onClick={() => remove(index)}
               className="shrink-0 rounded-md p-2 text-neutral-400 hover:bg-neutral-800 hover:text-red-400"
-              aria-label="Kaldır"
+              aria-label={t('res.removeAria')}
             >
               <IconTrash className="h-4 w-4" stroke={1.75} />
             </button>
@@ -149,7 +151,7 @@ function ResourceList({
         className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-3 py-2 text-sm text-neutral-200 hover:bg-neutral-700"
       >
         <IconPlus className="h-4 w-4" stroke={2} />
-        Elle ekle
+        {t('res.addManually')}
       </button>
     </div>
   )

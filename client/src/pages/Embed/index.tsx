@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { penApi, type SavedPen } from '@/config/api'
 import { useCompiledDoc } from '@/hooks/useCompiledDoc'
+import { useI18n } from '@/i18n/I18nContext'
 
 // Minimal chrome-free running preview, meant to be loaded inside an <iframe>
 // on another site via the embed code generated on the full view.
 function Embed() {
   const { id } = useParams()
+  const { t } = useI18n()
   const [pen, setPen] = useState<SavedPen | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,7 +22,7 @@ function Embed() {
       })
       .catch((err) => {
         if (active)
-          setError(err instanceof Error ? err.message : 'Pen bulunamadı')
+          setError(err instanceof Error ? err.message : t('embed.notFound'))
       })
     return () => {
       active = false

@@ -16,38 +16,19 @@ import {
   IconBrandJavascript,
 } from '@tabler/icons-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
 
 const features = [
-  {
-    icon: IconBolt,
-    title: 'Canlı önizleme',
-    desc: 'HTML, CSS ve JS yazarken sonucu anında yan panelde gör. Kaydetmeye gerek yok.',
-  },
-  {
-    icon: IconWand,
-    title: 'Preprocessor desteği',
-    desc: 'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX ve daha fazlası kutudan çıktığı gibi.',
-  },
-  {
-    icon: IconLink,
-    title: 'Harici kaynaklar',
-    desc: 'İstediğin CDN script ve stilini ekle; React, Tailwind, herhangi bir kütüphaneyle çalış.',
-  },
+  { icon: IconBolt, title: 'home.f.live.title', desc: 'home.f.live.desc' },
+  { icon: IconWand, title: 'home.f.pre.title', desc: 'home.f.pre.desc' },
+  { icon: IconLink, title: 'home.f.res.title', desc: 'home.f.res.desc' },
   {
     icon: IconDeviceFloppy,
-    title: 'Kaydet & sürdür',
-    desc: 'Çalışmanı kaydet, taslakların otomatik saklansın, istediğin an kaldığın yerden devam et.',
+    title: 'home.f.save.title',
+    desc: 'home.f.save.desc',
   },
-  {
-    icon: IconWorld,
-    title: 'Paylaş & keşfet',
-    desc: 'Projeni herkese açık yayınla, topluluğun paylaştıklarını keşfet, ilham al.',
-  },
-  {
-    icon: IconCode,
-    title: 'Embed',
-    desc: 'Çalışmanı bir iframe ile blog veya dokümanına göm, canlı ve etkileşimli kalsın.',
-  },
+  { icon: IconWorld, title: 'home.f.share.title', desc: 'home.f.share.desc' },
+  { icon: IconCode, title: 'home.f.embed.title', desc: 'home.f.embed.desc' },
 ]
 
 const preprocessors = [
@@ -72,15 +53,16 @@ const preprocessors = [
 ]
 
 const community = [
-  { icon: IconWorld, text: 'Herkese açık projeleri keşfet' },
-  { icon: IconHeart, text: 'Beğen ve favorilerini topla' },
-  { icon: IconMessageCircle, text: 'Yorum yaparak geri bildirim ver' },
-  { icon: IconGitFork, text: "Fork'la ve kendi versiyonunu yap" },
-  { icon: IconUserCircle, text: 'Profilinde çalışmalarını sergile' },
+  { icon: IconWorld, text: 'home.community.discover' },
+  { icon: IconHeart, text: 'home.community.like' },
+  { icon: IconMessageCircle, text: 'home.community.comment' },
+  { icon: IconGitFork, text: 'home.community.fork' },
+  { icon: IconUserCircle, text: 'home.community.profile' },
 ]
 
 function Home() {
   const { user } = useAuth()
+  const { t } = useI18n()
 
   return (
     <div className="h-full overflow-y-auto bg-neutral-900 text-neutral-100">
@@ -93,7 +75,7 @@ function Home() {
         <div className="relative mx-auto max-w-5xl text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-800/60 px-3 py-1 text-xs font-medium text-neutral-300">
             <IconBolt className="h-3.5 w-3.5 text-indigo-400" stroke={2} />
-            Tarayıcında canlı kod editörü
+            {t('home.badge')}
           </span>
           <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-6xl">
             <span className="bg-gradient-to-r from-indigo-400 via-indigo-300 to-sky-300 bg-clip-text text-transparent">
@@ -101,22 +83,21 @@ function Home() {
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-neutral-400 sm:text-lg">
-            HTML, CSS ve JavaScript'i yaz, anında önizle, preprocessor'larla
-            hızlan ve çalışmanı tek tıkla paylaş. Kurulum yok — sadece kod.
+            {t('home.subtitle')}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/editor"
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 sm:text-base"
             >
-              Editöre başla
+              {t('home.cta.start')}
               <IconArrowRight className="h-4 w-4" stroke={2} />
             </Link>
             <Link
               to="/explore"
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800/60 px-5 py-2.5 text-sm font-medium text-neutral-200 transition hover:bg-neutral-800 sm:text-base"
             >
-              Keşfet
+              {t('home.cta.explore')}
             </Link>
           </div>
 
@@ -151,7 +132,9 @@ function Home() {
               ))}
             </div>
             <div className="flex items-center justify-center border-t border-neutral-800 bg-gradient-to-br from-indigo-500/10 to-sky-500/10 py-8">
-              <span className="text-sm text-neutral-400">Canlı önizleme</span>
+              <span className="text-sm text-neutral-400">
+                {t('home.mockup.preview')}
+              </span>
             </div>
           </div>
         </div>
@@ -161,10 +144,10 @@ function Home() {
       <section className="border-t border-neutral-800 px-4 py-16 sm:px-6">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center text-2xl font-semibold sm:text-3xl">
-            Neler yapabilirsin?
+            {t('home.features.heading')}
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-center text-sm text-neutral-400 sm:text-base">
-            Fikirden çalışan prototipe saniyeler içinde geç.
+            {t('home.features.sub')}
           </p>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
@@ -175,8 +158,8 @@ function Home() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
                   <f.icon className="h-5 w-5" stroke={2} />
                 </div>
-                <h3 className="mt-4 text-base font-semibold">{f.title}</h3>
-                <p className="mt-1.5 text-sm text-neutral-400">{f.desc}</p>
+                <h3 className="mt-4 text-base font-semibold">{t(f.title)}</h3>
+                <p className="mt-1.5 text-sm text-neutral-400">{t(f.desc)}</p>
               </div>
             ))}
           </div>
@@ -187,10 +170,10 @@ function Home() {
       <section className="border-t border-neutral-800 px-4 py-16 sm:px-6">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center text-2xl font-semibold sm:text-3xl">
-            Desteklenen diller & preprocessor'lar
+            {t('home.pre.heading')}
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-center text-sm text-neutral-400 sm:text-base">
-            Sevdiğin sözdizimiyle yaz; derlemeyi biz halledelim.
+            {t('home.pre.sub')}
           </p>
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {preprocessors.map((group) => (
@@ -223,11 +206,10 @@ function Home() {
         <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2">
           <div>
             <h2 className="text-2xl font-semibold sm:text-3xl">
-              Bir topluluğun parçası ol
+              {t('home.community.heading')}
             </h2>
             <p className="mt-3 text-sm text-neutral-400 sm:text-base">
-              Çalışmanı yayınla, başkalarının projelerini keşfet ve birlikte
-              daha iyi kod yaz.
+              {t('home.community.sub')}
             </p>
             <ul className="mt-6 space-y-3">
               {community.map((c) => (
@@ -235,7 +217,7 @@ function Home() {
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-800 text-indigo-400">
                     <c.icon className="h-4 w-4" stroke={2} />
                   </span>
-                  <span className="text-sm text-neutral-300">{c.text}</span>
+                  <span className="text-sm text-neutral-300">{t(c.text)}</span>
                 </li>
               ))}
             </ul>
@@ -243,17 +225,16 @@ function Home() {
           <div className="rounded-2xl border border-neutral-800 bg-gradient-to-br from-indigo-500/10 via-neutral-900 to-sky-500/10 p-8">
             <IconWorld className="h-10 w-10 text-indigo-400" stroke={1.5} />
             <p className="mt-4 text-lg font-medium">
-              Fikirlerini dünyayla paylaş.
+              {t('home.community.card.title')}
             </p>
             <p className="mt-2 text-sm text-neutral-400">
-              Herkese açık her proje, keşfet sayfasında yerini alır ve bir
-              bağlantıyla erişilebilir olur.
+              {t('home.community.card.desc')}
             </p>
             <Link
               to="/explore"
               className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-indigo-400 hover:text-indigo-300"
             >
-              Keşfet sayfasına git
+              {t('home.community.card.cta')}
               <IconArrowRight className="h-4 w-4" stroke={2} />
             </Link>
           </div>
@@ -264,18 +245,17 @@ function Home() {
       <section className="border-t border-neutral-800 px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-semibold sm:text-3xl">
-            Hemen kod yazmaya başla
+            {t('home.cta2.heading')}
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-neutral-400 sm:text-base">
-            Hesap oluşturman gerekmez — editörü açıp yazmaya başlayabilirsin.
-            Çalışmanı kaydetmek istediğinde saniyeler içinde kayıt ol.
+            {t('home.cta2.sub')}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/editor"
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 sm:text-base"
             >
-              Editörü aç
+              {t('home.cta2.open')}
               <IconArrowRight className="h-4 w-4" stroke={2} />
             </Link>
             {!user && (
@@ -283,7 +263,7 @@ function Home() {
                 to="/register"
                 className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800/60 px-5 py-2.5 text-sm font-medium text-neutral-200 transition hover:bg-neutral-800 sm:text-base"
               >
-                Ücretsiz kayıt ol
+                {t('home.cta2.register')}
               </Link>
             )}
           </div>
@@ -298,7 +278,7 @@ function Home() {
             Code Editor
           </div>
           <p className="text-xs text-neutral-500">
-            HTML · CSS · JavaScript oyun alanı
+            {t('home.footer.tagline')}
           </p>
         </div>
       </footer>

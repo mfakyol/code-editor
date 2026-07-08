@@ -1,9 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { IconCode } from '@tabler/icons-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 function Header() {
   const { user, logout } = useAuth()
+  const { t } = useI18n()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -21,24 +24,25 @@ function Header() {
         to="/editor"
         className="text-sm text-neutral-400 hover:text-neutral-100"
       >
-        Editor
+        {t('nav.editor')}
       </Link>
       <Link
         to="/explore"
         className="text-sm text-neutral-400 hover:text-neutral-100"
       >
-        Keşfet
+        {t('nav.explore')}
       </Link>
       {user && (
         <Link
           to="/pens"
           className="text-sm text-neutral-400 hover:text-neutral-100"
         >
-          Pen’lerim
+          {t('nav.myPens')}
         </Link>
       )}
 
       <div className="ml-auto flex items-center gap-3 sm:gap-4">
+        <LanguageSwitcher />
         {user ? (
           <>
             <Link
@@ -51,14 +55,14 @@ function Header() {
               to="/account"
               className="text-sm text-neutral-400 hover:text-neutral-100"
             >
-              Hesap
+              {t('nav.account')}
             </Link>
             <button
               type="button"
               onClick={handleLogout}
               className="text-sm text-neutral-400 hover:text-neutral-100"
             >
-              Çıkış
+              {t('nav.logout')}
             </button>
           </>
         ) : (
@@ -67,13 +71,13 @@ function Header() {
               to="/login"
               className="text-sm text-neutral-400 hover:text-neutral-100"
             >
-              Giriş
+              {t('nav.login')}
             </Link>
             <Link
               to="/register"
               className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium hover:bg-indigo-500"
             >
-              Kayıt Ol
+              {t('nav.register')}
             </Link>
           </>
         )}

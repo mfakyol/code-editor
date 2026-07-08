@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
 import { authApi } from '@/config/api'
 
 function Account() {
   const { user, loading: authLoading } = useAuth()
+  const { t } = useI18n()
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -17,7 +19,7 @@ function Account() {
   if (authLoading) {
     return (
       <div className="flex h-full items-center justify-center text-neutral-400">
-        Yükleniyor...
+        {t('common.loading')}
       </div>
     )
   }
@@ -31,25 +33,25 @@ function Account() {
     setMessage(null)
 
     if (next.length < 6) {
-      setMessage({ type: 'error', text: 'Yeni şifre en az 6 karakter olmalı' })
+      setMessage({ type: 'error', text: t('account.tooShort') })
       return
     }
     if (next !== confirm) {
-      setMessage({ type: 'error', text: 'Yeni şifreler eşleşmiyor' })
+      setMessage({ type: 'error', text: t('account.mismatch') })
       return
     }
 
     setSaving(true)
     try {
       await authApi.changePassword(current, next)
-      setMessage({ type: 'ok', text: 'Şifren güncellendi' })
+      setMessage({ type: 'ok', text: t('account.updated') })
       setCurrent('')
       setNext('')
       setConfirm('')
     } catch (err) {
       setMessage({
         type: 'error',
-        text: err instanceof Error ? err.message : 'Şifre değiştirilemedi',
+        text: err instanceof Error ? err.message : t('account.changeFailed'),
       })
     } finally {
       setSaving(false)
@@ -61,15 +63,17 @@ function Account() {
 
   return (
     <div className="mx-auto h-full w-full max-w-md overflow-auto px-4 py-8 sm:px-6">
-      <h1 className="mb-1 text-2xl font-semibold">Hesap</h1>
+      <h1 className="mb-1 text-2xl font-semibold">{t('account.title')}</h1>
       <p className="mb-6 text-sm text-neutral-500">
         {user.username} · {user.email} ·{' '}
         <Link to={`/u/${user.username}`} className="text-indigo-400 hover:underline">
-          Profilini gör
+          {t('account.viewProfile')}
         </Link>
       </p>
 
-      <h2 className="mb-3 text-lg font-medium">Şifre Değiştir</h2>
+      <h2 className="mb-3 text-lg font-medium">
+        {t('account.changePassword')}
+      </h2>
 
       {message && (
         <p
@@ -86,7 +90,7 @@ function Account() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="mb-1 block text-sm text-neutral-300">
-            Mevcut şifre
+            {t('account.current')}
           </label>
           <input
             type="password"
@@ -99,7 +103,7 @@ function Account() {
         </div>
         <div>
           <label className="mb-1 block text-sm text-neutral-300">
-            Yeni şifre
+            {t('account.new')}
           </label>
           <input
             type="password"
@@ -112,7 +116,7 @@ function Account() {
         </div>
         <div>
           <label className="mb-1 block text-sm text-neutral-300">
-            Yeni şifre (tekrar)
+            {t('account.confirm')}
           </label>
           <input
             type="password"
@@ -128,7 +132,7 @@ function Account() {
           disabled={saving}
           className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium hover:bg-indigo-500 disabled:opacity-50"
         >
-          {saving ? 'Kaydediliyor...' : 'Şifreyi Güncelle'}
+          {saving ? t('account.saving') : t('account.update')}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
 
 export type AuthMode = 'login' | 'register'
 
@@ -18,6 +19,7 @@ function AuthModal({
   onSwitchMode,
 }: AuthModalProps) {
   const { login, register } = useAuth()
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -45,7 +47,7 @@ function AuthModal({
       }
       onAuthenticated()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'İşlem başarısız')
+      setError(err instanceof Error ? err.message : t('auth.failed'))
     } finally {
       setSubmitting(false)
     }
@@ -66,13 +68,13 @@ function AuthModal({
       >
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-neutral-100">
-            {isRegister ? 'Kayıt Ol' : 'Giriş Yap'}
+            {isRegister ? t('auth.register.title') : t('auth.login.title')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="text-neutral-400 hover:text-neutral-100"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <IconX className="h-5 w-5" stroke={1.75} />
           </button>
@@ -84,7 +86,9 @@ function AuthModal({
           </p>
         )}
 
-        <label className="mb-1 block text-sm text-neutral-300">Email</label>
+        <label className="mb-1 block text-sm text-neutral-300">
+          {t('auth.email')}
+        </label>
         <input
           type="email"
           required
@@ -96,7 +100,7 @@ function AuthModal({
         {isRegister && (
           <>
             <label className="mb-1 block text-sm text-neutral-300">
-              Kullanıcı Adı
+              {t('auth.username')}
             </label>
             <input
               type="text"
@@ -108,7 +112,9 @@ function AuthModal({
           </>
         )}
 
-        <label className="mb-1 block text-sm text-neutral-300">Parola</label>
+        <label className="mb-1 block text-sm text-neutral-300">
+          {t('auth.password')}
+        </label>
         <input
           type="password"
           required
@@ -124,33 +130,33 @@ function AuthModal({
           className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium hover:bg-indigo-500 disabled:opacity-50"
         >
           {submitting
-            ? 'Lütfen bekleyin...'
+            ? t('auth.pleaseWait')
             : isRegister
-              ? 'Kayıt Ol'
-              : 'Giriş Yap'}
+              ? t('auth.register.title')
+              : t('auth.login.title')}
         </button>
 
         <p className="mt-4 text-center text-sm text-neutral-400">
           {isRegister ? (
             <>
-              Zaten hesabın var mı?{' '}
+              {t('auth.haveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => onSwitchMode('login')}
                 className="text-indigo-400 hover:text-indigo-300"
               >
-                Giriş yap
+                {t('auth.switchLogin')}
               </button>
             </>
           ) : (
             <>
-              Hesabın yok mu?{' '}
+              {t('auth.noAccount')}{' '}
               <button
                 type="button"
                 onClick={() => onSwitchMode('register')}
                 className="text-indigo-400 hover:text-indigo-300"
               >
-                Kayıt ol
+                {t('auth.switchRegister')}
               </button>
             </>
           )}

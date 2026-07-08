@@ -10,6 +10,7 @@ import {
   IconUser,
 } from '@tabler/icons-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
 import { penApi, type SavedPen, type PenComment } from '@/config/api'
 import { useCompiledDoc } from '@/hooks/useCompiledDoc'
 import { Skeleton } from '@/components/Skeleton'
@@ -22,6 +23,7 @@ function PenView() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useI18n()
 
   const [pen, setPen] = useState<SavedPen | null>(null)
   const [isOwner, setIsOwner] = useState(false)
@@ -48,7 +50,7 @@ function PenView() {
       })
       .catch((err) => {
         if (active)
-          setError(err instanceof Error ? err.message : 'Pen bulunamadı')
+          setError(err instanceof Error ? err.message : t('penView.notFound'))
       })
     return () => {
       active = false
@@ -96,7 +98,7 @@ function PenView() {
       setLikedByMe(liked)
       setLikeCount(count)
     } catch (err) {
-      flashStatus(err instanceof Error ? err.message : 'Beğenilemedi')
+      flashStatus(err instanceof Error ? err.message : t('penView.likeFailed'))
     }
   }
 
@@ -110,7 +112,7 @@ function PenView() {
       const { pen: fork } = await penApi.fork(id)
       navigate(`/pen/${fork._id}`)
     } catch (err) {
-      flashStatus(err instanceof Error ? err.message : 'Fork oluşturulamadı')
+      flashStatus(err instanceof Error ? err.message : t('penView.forkFailed'))
     }
   }
 
@@ -120,9 +122,9 @@ function PenView() {
     const snippet = `<iframe src="${url}" style="width:100%;height:400px;border:0;" title="${pen?.title ?? 'Pen'}" loading="lazy"></iframe>`
     try {
       await navigator.clipboard.writeText(snippet)
-      flashStatus('Embed kodu kopyalandı')
+      flashStatus(t('penView.embedCopied'))
     } catch {
-      window.prompt('Embed kodu:', snippet)
+      window.prompt(t('penView.embedPrompt'), snippet)
     }
   }
 
@@ -140,7 +142,7 @@ function PenView() {
       setComments((current) => [comment, ...current])
       setCommentText('')
     } catch (err) {
-      flashStatus(err instanceof Error ? err.message : 'Yorum eklenemedi')
+      flashStatus(err instanceof Error ? err.message : t('penView.commentFailed'))
     } finally {
       setPosting(false)
     }
@@ -152,7 +154,7 @@ function PenView() {
       await penApi.deleteComment(id, commentId)
       setComments((current) => current.filter((c) => c._id !== commentId))
     } catch (err) {
-      flashStatus(err instanceof Error ? err.message : 'Silinemedi')
+      flashStatus(err instanceof Error ? err.message : t('penView.deleteFailed'))
     }
   }
 
@@ -231,7 +233,7 @@ function PenView() {
               className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium hover:bg-indigo-500"
             >
               <IconPencil className="h-4 w-4" stroke={1.75} />
-              Düzenle
+              {t('penView.edit')}
             </Link>
           )}
         </div>
@@ -250,7 +252,7 @@ function PenView() {
       {/* Comments */}
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">
-          Yorumlar{' '}
+          {t('penView.comments')}{' '}
           <span className="text-neutral-500">({comments.length})</span>
         </h2>
 
@@ -259,7 +261,9 @@ function PenView() {
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder={
-              user ? 'Bir yorum yaz...' : 'Yorum yapmak için giriş yap'
+              user
+                ? t('penView.commentPlaceholder')
+                : t('penView.commentLoginPlaceholder')
             }
             rows={3}
             maxLength={2000}
@@ -271,14 +275,14 @@ function PenView() {
               disabled={posting || !commentText.trim()}
               className="rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-medium hover:bg-indigo-500 disabled:opacity-50"
             >
-              {posting ? 'Gönderiliyor...' : 'Yorum Yap'}
+              {posting ? t('penView.posting') : t('penView.post')}
             </button>
           </div>
         </form>
 
         {comments.length === 0 ? (
           <p className="text-sm text-neutral-500">
-            Henüz yorum yok. İlk yorumu sen yap!
+            {t('penView.noComments')}
           </p>
         ) : (
           <ul className="space-y-3">
@@ -307,7 +311,7 @@ function PenView() {
                       <button
                         type="button"
                         onClick={() => handleDeleteComment(comment._id)}
-                        aria-label="Yorumu sil"
+                        aria-label={t('penView.deleteComment')}
                         className="rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-red-400"
                       >
                         <IconTrash className="h-4 w-4" stroke={1.75} />

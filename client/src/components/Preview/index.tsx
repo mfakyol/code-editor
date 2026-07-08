@@ -8,6 +8,7 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react'
 import type { ConsoleLog } from '@/hooks/usePreview'
+import { useI18n } from '@/i18n/I18nContext'
 
 type PreviewTab = 'result' | 'console'
 
@@ -32,6 +33,7 @@ function Preview({
   clearLogs,
   pushLog,
 }: PreviewProps) {
+  const { t } = useI18n()
   const [activeTab, setActiveTab] = useState<PreviewTab>('result')
   const [maximized, setMaximized] = useState(false)
   const [command, setCommand] = useState('')
@@ -95,8 +97,8 @@ function Preview({
             <button
               type="button"
               onClick={clearLogs}
-              title="Konsolu temizle"
-              aria-label="Konsolu temizle"
+              title={t('preview.clearConsole')}
+              aria-label={t('preview.clearConsole')}
               className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
             >
               <IconTrash className="h-4 w-4" stroke={1.75} />
@@ -105,8 +107,10 @@ function Preview({
           <button
             type="button"
             onClick={toggleMaximized}
-            title={maximized ? 'Küçült' : 'Tam alan'}
-            aria-label={maximized ? 'Küçült' : 'Tam alan'}
+            title={maximized ? t('preview.minimize') : t('preview.maximize')}
+            aria-label={
+              maximized ? t('preview.minimize') : t('preview.maximize')
+            }
             className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
           >
             {maximized ? (
@@ -136,9 +140,7 @@ function Preview({
         >
           <div className="min-h-0 flex-1 overflow-auto p-3">
             {logs.length === 0 ? (
-              <p className="text-neutral-500">
-                Konsol çıktısı burada görünür. Aşağıdan komut çalıştırabilirsin.
-              </p>
+              <p className="text-neutral-500">{t('preview.consoleEmpty')}</p>
             ) : (
               <ul className="space-y-1">
                 {logs.map((log) => (
@@ -160,7 +162,7 @@ function Preview({
               type="text"
               value={command}
               onChange={(e) => setCommand(e.target.value)}
-              placeholder="JS komutu çalıştır..."
+              placeholder={t('preview.commandPlaceholder')}
               spellCheck={false}
               autoComplete="off"
               className="min-w-0 flex-1 bg-transparent text-neutral-200 outline-none placeholder:text-neutral-600"

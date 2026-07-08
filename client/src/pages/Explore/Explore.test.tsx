@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import Explore from './index'
 import { penApi, type PublicPen } from '@/config/api'
 import { defaultPenSettings } from '@/types/preprocessors'
+import { I18nProvider } from '@/i18n/I18nContext'
 
 vi.mock('@/config/api', () => ({
   penApi: { publicList: vi.fn() },
@@ -26,15 +27,19 @@ const makePen = (overrides: Partial<PublicPen>): PublicPen => ({
 
 const renderExplore = () =>
   render(
-    <MemoryRouter>
-      <Explore />
-    </MemoryRouter>,
+    <I18nProvider>
+      <MemoryRouter>
+        <Explore />
+      </MemoryRouter>
+    </I18nProvider>,
   )
 
 const mockedList = vi.mocked(penApi.publicList)
 
 describe('Explore page', () => {
   beforeEach(() => {
+    // Pin the language so text assertions are deterministic.
+    window.localStorage.setItem('lang', 'en')
     mockedList.mockReset()
     mockedList.mockResolvedValue({ pens: [makePen({})] })
   })
@@ -57,7 +62,7 @@ describe('Explore page', () => {
     await screen.findByText('Pen One')
     expect(mockedList).toHaveBeenLastCalledWith('recent')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Popüler' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Popular' }))
     await waitFor(() =>
       expect(mockedList).toHaveBeenLastCalledWith('popular'),
     )
@@ -67,7 +72,7 @@ describe('Explore page', () => {
     mockedList.mockResolvedValue({ pens: [] })
     renderExplore()
     expect(
-      await screen.findByText(/Henüz herkese açık pen yok/),
+      await screen.findByText(/No public pens yet/),
     ).toBeInTheDocument()
   })
 })

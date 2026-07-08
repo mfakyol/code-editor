@@ -4,8 +4,10 @@ import { IconUserCircle } from '@tabler/icons-react'
 import { userApi, type PublicPen } from '@/config/api'
 import { GalleryGridSkeleton } from '@/components/Skeleton'
 import PenCard from '@/components/PenCard'
+import { useI18n } from '@/i18n/I18nContext'
 
 function Profile() {
+  const { t } = useI18n()
   const { username } = useParams()
   const [pens, setPens] = useState<PublicPen[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,7 +25,7 @@ function Profile() {
       })
       .catch((err) => {
         if (active)
-          setError(err instanceof Error ? err.message : 'Profil bulunamadı')
+          setError(err instanceof Error ? err.message : t('profile.notFound'))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -41,7 +43,7 @@ function Profile() {
           <h1 className="text-2xl font-semibold">{username}</h1>
           {!loading && !error && (
             <p className="text-sm text-neutral-500">
-              {pens.length} herkese açık pen
+              {t('profile.publicPens', { count: pens.length })}
             </p>
           )}
         </div>
@@ -55,7 +57,7 @@ function Profile() {
         <GalleryGridSkeleton />
       ) : pens.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-700 p-10 text-center text-neutral-400">
-          Bu kullanıcının henüz herkese açık pen’i yok.
+          {t('profile.empty')}
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { IconHeartFilled, IconUser } from '@tabler/icons-react'
 import type { PublicPen } from '@/config/api'
 import { buildSrcDoc } from '@/utils/buildSrcDoc'
+import { useI18n } from '@/i18n/I18nContext'
 
 // A non-interactive, scaled-down live preview of a pen. Renders raw source
 // (no preprocessor compilation) inside a sandboxed iframe — fast enough for
@@ -39,6 +40,7 @@ type PenCardProps = {
 }
 
 function PenCard({ pen, showOwner = true }: PenCardProps) {
+  const { t } = useI18n()
   return (
     <li className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 transition hover:border-neutral-600">
       <Link to={`/pen/${pen._id}/full`} className="block">
@@ -49,7 +51,7 @@ function PenCard({ pen, showOwner = true }: PenCardProps) {
             {showOwner && (
               <p className="mt-0.5 flex items-center gap-1 text-xs text-neutral-500">
                 <IconUser className="h-3 w-3" stroke={2} />
-                {pen.ownerName ?? 'anonim'}
+                {pen.ownerName ?? t('penCard.anon')}
               </p>
             )}
           </div>

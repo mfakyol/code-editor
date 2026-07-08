@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { penApi, type PublicPen } from '@/config/api'
 import { GalleryGridSkeleton } from '@/components/Skeleton'
 import PenCard from '@/components/PenCard'
+import { useI18n } from '@/i18n/I18nContext'
 
 type SortMode = 'recent' | 'popular'
 
 function Explore() {
+  const { t } = useI18n()
   const [pens, setPens] = useState<PublicPen[]>([])
   const [sort, setSort] = useState<SortMode>('recent')
   const [loading, setLoading] = useState(true)
@@ -22,7 +24,7 @@ function Explore() {
       })
       .catch((err) => {
         if (active)
-          setError(err instanceof Error ? err.message : 'Pen’ler yüklenemedi')
+          setError(err instanceof Error ? err.message : t('explore.loadFailed'))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -35,7 +37,7 @@ function Explore() {
   return (
     <div className="mx-auto h-full w-full max-w-6xl overflow-auto px-4 py-8 sm:px-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Keşfet</h1>
+        <h1 className="text-2xl font-semibold">{t('explore.title')}</h1>
         <div className="flex items-center rounded-md bg-neutral-800 p-0.5 text-sm">
           {(['recent', 'popular'] as const).map((mode) => (
             <button
@@ -48,7 +50,7 @@ function Explore() {
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
-              {mode === 'recent' ? 'Yeni' : 'Popüler'}
+              {mode === 'recent' ? t('explore.recent') : t('explore.popular')}
             </button>
           ))}
         </div>
@@ -64,7 +66,7 @@ function Explore() {
         <GalleryGridSkeleton />
       ) : pens.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-700 p-10 text-center text-neutral-400">
-          Henüz herkese açık pen yok. İlk paylaşan sen ol!
+          {t('explore.empty')}
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

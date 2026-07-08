@@ -18,8 +18,10 @@ import {
   IconWorld,
 } from '@tabler/icons-react'
 import AuthModal, { type AuthMode } from '@/components/AuthModal'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { usePreviewRunner } from '@/contexts/PreviewRunnerContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useI18n } from '@/i18n/I18nContext'
 import {
   useWorkspace,
   type ViewMode,
@@ -38,17 +40,18 @@ import { clearDraft } from '@/utils/draft'
 
 const viewOptions: {
   mode: ViewMode
-  label: string
+  labelKey: string
   Icon: typeof IconLayout
 }[] = [
-  { mode: 'left', label: 'Sol', Icon: IconLayoutSidebar },
-  { mode: 'top', label: 'Üst', Icon: IconLayoutNavbar },
-  { mode: 'right', label: 'Sağ', Icon: IconLayoutSidebarRight },
+  { mode: 'left', labelKey: 'editor.view.left', Icon: IconLayoutSidebar },
+  { mode: 'top', labelKey: 'editor.view.top', Icon: IconLayoutNavbar },
+  { mode: 'right', labelKey: 'editor.view.right', Icon: IconLayoutSidebarRight },
 ]
 
 function EditorHeader() {
   const { run } = usePreviewRunner()
   const { user, logout } = useAuth()
+  const { t } = useI18n()
   const {
     title,
     setTitle,
@@ -108,9 +111,11 @@ function EditorHeader() {
         navigate(`/pen/${pen._id}`)
       }
       markSaved()
-      flashStatus('Kaydedildi')
+      flashStatus(t('editor.status.saved'))
     } catch (err) {
-      setStatus(err instanceof Error ? err.message : 'Kaydedilemedi')
+      setStatus(
+        err instanceof Error ? err.message : t('editor.status.saveFailed'),
+      )
     } finally {
       setSaving(false)
     }
@@ -136,9 +141,11 @@ function EditorHeader() {
       setTitle(forkTitle)
       markSaved()
       navigate(`/pen/${pen._id}`)
-      flashStatus('Fork oluşturuldu')
+      flashStatus(t('editor.status.forked'))
     } catch (err) {
-      setStatus(err instanceof Error ? err.message : 'Fork oluşturulamadı')
+      setStatus(
+        err instanceof Error ? err.message : t('editor.status.forkFailed'),
+      )
     } finally {
       setForking(false)
     }
@@ -159,7 +166,9 @@ function EditorHeader() {
       const { liked, likeCount: count } = await penApi.like(penId)
       setSocial({ likeCount: count, likedByMe: liked, commentCount })
     } catch (err) {
-      setStatus(err instanceof Error ? err.message : 'Beğenilemedi')
+      setStatus(
+        err instanceof Error ? err.message : t('editor.status.likeFailed'),
+      )
     }
   }
 
@@ -174,7 +183,7 @@ function EditorHeader() {
 
   const handleShare = async () => {
     if (!penId) {
-      flashStatus('Önce pen’i kaydet')
+      flashStatus(t('editor.status.saveFirst'))
       return
     }
     const url = `${window.location.origin}/pen/${penId}`
@@ -182,12 +191,12 @@ function EditorHeader() {
       await navigator.clipboard.writeText(url)
       flashStatus(
         isPublic
-          ? 'Bağlantı kopyalandı'
-          : 'Özel pen — sadece sen açabilirsin. Bağlantı kopyalandı',
+          ? t('editor.status.linkCopied')
+          : t('editor.status.privateLinkCopied'),
       )
     } catch {
       // Clipboard blocked (e.g. insecure context) — show the link instead.
-      window.prompt('Paylaşım bağlantısı:', url)
+      window.prompt(t('editor.status.sharePrompt'), url)
     }
   }
 
@@ -200,10 +209,16 @@ function EditorHeader() {
     if (penId) {
       try {
         await penApi.setVisibility(penId, nextValue)
-        flashStatus(nextValue ? 'Herkese açık yapıldı' : 'Gizli yapıldı')
+        flashStatus(
+          nextValue
+            ? t('editor.status.madePublic')
+            : t('editor.status.madePrivate'),
+        )
       } catch (err) {
         setIsPublic(!nextValue) // revert on failure
-        setStatus(err instanceof Error ? err.message : 'Güncellenemedi')
+        setStatus(
+          err instanceof Error ? err.message : t('editor.status.updateFailed'),
+        )
       }
     }
   }
@@ -211,7 +226,7 @@ function EditorHeader() {
   const handleSave = () => {
     // Viewing someone else's pen — saving isn't allowed, fork instead.
     if (penId && !isOwner) {
-      flashStatus('Bu pen sana ait değil — forkla')
+      flashStatus(t('editor.status.notYours'))
       return
     }
     if (!user) {
@@ -251,10 +266,10 @@ function EditorHeader() {
     setStatus(null)
     try {
       await format()
-      setStatus('Biçimlendirildi')
+      setStatus(t('editor.status.formatted'))
       window.setTimeout(() => setStatus(null), 2000)
     } catch {
-      setStatus('Biçimlendirilemedi')
+      setStatus(t('editor.status.formatFailed'))
     } finally {
       setFormatting(false)
     }
@@ -302,24 +317,24 @@ function EditorHeader() {
           className="flex shrink-0 items-center gap-1 text-xs text-neutral-400 hover:text-neutral-100 sm:text-sm"
         >
           <IconArrowLeft className="h-4 w-4" stroke={1.75} />
-          <span className="hidden sm:inline">Ana Sayfa</span>
+          <span className="hidden sm:inline">{t('editor.home')}</span>
         </Link>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Untitled Pen"
-          aria-label="Pen başlığı"
+          placeholder={t('editor.titlePlaceholder')}
+          aria-label={t('editor.titleAria')}
           readOnly={Boolean(penId) && !isOwner}
           className="min-w-0 max-w-[40vw] truncate rounded border border-transparent bg-transparent px-1.5 py-1 text-xs font-medium hover:border-neutral-700 focus:border-indigo-500 focus:outline-none sm:text-sm"
         />
         {penId && !isOwner && (
           <span
-            title="Bu pen sana ait değil — kaydetmek için forkla"
+            title={t('editor.readonlyTitle')}
             className="hidden shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-400 sm:inline-flex"
           >
             <IconEye className="h-3 w-3" stroke={2} />
-            Salt-okunur
+            {t('editor.readonly')}
           </span>
         )}
       </div>
@@ -336,8 +351,8 @@ function EditorHeader() {
             type="button"
             onClick={() => adjustFontSize(-1)}
             disabled={fontSize <= MIN_FONT_SIZE}
-            title="Yazı tipini küçült"
-            aria-label="Yazı tipini küçült"
+            title={t('editor.fontDown')}
+            aria-label={t('editor.fontDown')}
             className="px-2 py-1 text-sm text-neutral-300 hover:text-neutral-100 disabled:opacity-40"
           >
             A-
@@ -349,8 +364,8 @@ function EditorHeader() {
             type="button"
             onClick={() => adjustFontSize(1)}
             disabled={fontSize >= MAX_FONT_SIZE}
-            title="Yazı tipini büyüt"
-            aria-label="Yazı tipini büyüt"
+            title={t('editor.fontUp')}
+            aria-label={t('editor.fontUp')}
             className="px-2 py-1 text-base text-neutral-300 hover:text-neutral-100 disabled:opacity-40"
           >
             A+
@@ -359,7 +374,7 @@ function EditorHeader() {
 
         <label
           className="hidden cursor-pointer select-none items-center gap-1.5 text-xs text-neutral-400 sm:flex"
-          title="Değişiklikte otomatik çalıştır"
+          title={t('editor.autoRunTitle')}
         >
           <input
             type="checkbox"
@@ -373,8 +388,8 @@ function EditorHeader() {
         <select
           value={editorTheme}
           onChange={(e) => setEditorTheme(e.target.value as EditorTheme)}
-          title="Editör teması"
-          aria-label="Editör teması"
+          title={t('editor.theme')}
+          aria-label={t('editor.theme')}
           className="hidden rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1.5 text-xs text-neutral-200 outline-none focus:border-indigo-500 sm:block"
         >
           {themeOptions.map((option) => (
@@ -389,7 +404,7 @@ function EditorHeader() {
             type="button"
             onClick={() => setViewOpen((open) => !open)}
             className="flex items-center rounded-md bg-neutral-800 px-2.5 py-1.5 text-neutral-200 hover:bg-neutral-700"
-            aria-label="Görünümü değiştir"
+            aria-label={t('editor.changeViewAria')}
             aria-haspopup="true"
             aria-expanded={viewOpen}
           >
@@ -407,10 +422,10 @@ function EditorHeader() {
               />
               <div className="absolute right-0 z-50 mt-2 w-44 rounded-md border border-neutral-700 bg-neutral-900 p-2 shadow-xl">
                 <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                  Change View
+                  {t('editor.changeView')}
                 </p>
                 <div className="flex gap-1">
-                  {viewOptions.map(({ mode, label, Icon }) => (
+                  {viewOptions.map(({ mode, labelKey, Icon }) => (
                     <button
                       key={mode}
                       type="button"
@@ -418,8 +433,8 @@ function EditorHeader() {
                         setViewMode(mode)
                         setViewOpen(false)
                       }}
-                      title={label}
-                      aria-label={label}
+                      title={t(labelKey)}
+                      aria-label={t(labelKey)}
                       aria-pressed={viewMode === mode}
                       className={`flex flex-1 items-center justify-center rounded-md border py-2 ${
                         viewMode === mode
@@ -436,6 +451,10 @@ function EditorHeader() {
           )}
         </div>
 
+        <div className="hidden sm:block">
+          <LanguageSwitcher compact />
+        </div>
+
         {user ? (
           <>
             <span className="hidden text-xs text-neutral-400 sm:inline">
@@ -446,7 +465,7 @@ function EditorHeader() {
               onClick={handleLogout}
               className="hidden text-xs text-neutral-400 hover:text-neutral-100 sm:inline"
             >
-              Çıkış
+              {t('editor.logout')}
             </button>
           </>
         ) : (
@@ -455,7 +474,7 @@ function EditorHeader() {
             onClick={() => setAuthMode('login')}
             className="text-xs text-neutral-400 hover:text-neutral-100 sm:text-sm"
           >
-            Giriş
+            {t('editor.login')}
           </button>
         )}
 
@@ -463,13 +482,13 @@ function EditorHeader() {
           type="button"
           onClick={handleFormat}
           disabled={formatting}
-          title="Biçimlendir (Shift + Alt + F)"
-          aria-label="Biçimlendir"
+          title={t('editor.formatTitle')}
+          aria-label={t('editor.formatAria')}
           className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 disabled:opacity-50 sm:text-sm"
         >
           <IconWand className="h-4 w-4" stroke={1.75} />
           <span className="hidden sm:inline">
-            {formatting ? '...' : 'Format'}
+            {formatting ? '...' : t('editor.format')}
           </span>
         </button>
 
@@ -478,11 +497,9 @@ function EditorHeader() {
             type="button"
             onClick={handleTogglePublic}
             title={
-              isPublic
-                ? 'Herkese açık — gizli yapmak için tıkla'
-                : 'Gizli — herkese açık yapmak için tıkla'
+              isPublic ? t('editor.publicTitle') : t('editor.privateTitle')
             }
-            aria-label="Görünürlüğü değiştir"
+            aria-label={t('editor.visibilityAria')}
             aria-pressed={isPublic}
             className={`hidden items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs sm:inline-flex sm:text-sm ${
               isPublic
@@ -496,7 +513,7 @@ function EditorHeader() {
               <IconLock className="h-4 w-4" stroke={1.75} />
             )}
             <span className="hidden md:inline">
-              {isPublic ? 'Herkese açık' : 'Gizli'}
+              {isPublic ? t('editor.public') : t('editor.private')}
             </span>
           </button>
         )}
@@ -505,8 +522,8 @@ function EditorHeader() {
           <button
             type="button"
             onClick={handleLike}
-            title={likedByMe ? 'Beğeniyi geri al' : 'Beğen'}
-            aria-label="Beğen"
+            title={likedByMe ? t('editor.unlike') : t('editor.like')}
+            aria-label={t('editor.like')}
             aria-pressed={likedByMe}
             className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs sm:text-sm ${
               likedByMe
@@ -527,12 +544,12 @@ function EditorHeader() {
           <button
             type="button"
             onClick={handleShare}
-            title="Paylaşım bağlantısını kopyala"
-            aria-label="Paylaş"
+            title={t('editor.shareTitle')}
+            aria-label={t('editor.share')}
             className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 sm:text-sm"
           >
             <IconShare className="h-4 w-4" stroke={1.75} />
-            <span className="hidden sm:inline">Paylaş</span>
+            <span className="hidden sm:inline">{t('editor.share')}</span>
           </button>
         )}
 
@@ -541,13 +558,13 @@ function EditorHeader() {
             type="button"
             onClick={handleFork}
             disabled={forking}
-            title="Bu pen’i forkla (kendi kopyanı oluştur)"
-            aria-label="Fork"
+            title={t('editor.forkTitle')}
+            aria-label={t('editor.fork')}
             className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 disabled:opacity-50 sm:text-sm"
           >
             <IconGitFork className="h-4 w-4" stroke={1.75} />
             <span className="hidden sm:inline">
-              {forking ? '...' : 'Fork'}
+              {forking ? '...' : t('editor.fork')}
             </span>
           </button>
         )}
@@ -557,22 +574,22 @@ function EditorHeader() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            title="Kaydet (Ctrl/Cmd + S)"
+            title={t('editor.saveTitle')}
             className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-3 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700 disabled:opacity-50 sm:text-sm"
           >
             <IconDeviceFloppy className="h-4 w-4" stroke={1.75} />
-            {saving ? 'Kaydediliyor...' : 'Kaydet'}
+            {saving ? t('editor.saving') : t('editor.save')}
           </button>
         )}
 
         <button
           type="button"
           onClick={() => run({ force: true })}
-          title="Çalıştır (Ctrl/Cmd + Enter)"
+          title={t('editor.runTitle')}
           className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-medium hover:bg-indigo-500 sm:px-3 sm:text-sm"
         >
           <IconPlayerPlayFilled className="h-4 w-4" />
-          Run
+          {t('editor.run')}
         </button>
       </div>
 

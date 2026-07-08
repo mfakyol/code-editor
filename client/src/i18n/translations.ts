@@ -1,0 +1,446 @@
+export type Lang = 'tr' | 'en'
+
+// Flat, dot-namespaced keys. Keep tr and en in sync.
+export const translations: Record<Lang, Record<string, string>> = {
+  tr: {
+    // common
+    'common.loading': 'Yükleniyor...',
+    'common.close': 'Kapat',
+
+    // nav / header
+    'nav.editor': 'Editör',
+    'nav.explore': 'Keşfet',
+    'nav.myPens': 'Pen’lerim',
+    'nav.account': 'Hesap',
+    'nav.logout': 'Çıkış',
+    'nav.login': 'Giriş',
+    'nav.register': 'Kayıt Ol',
+
+    // home / landing
+    'home.badge': 'Tarayıcında canlı kod editörü',
+    'home.subtitle':
+      "HTML, CSS ve JavaScript'i yaz, anında önizle, preprocessor'larla hızlan ve çalışmanı tek tıkla paylaş. Kurulum yok — sadece kod.",
+    'home.cta.start': 'Editöre başla',
+    'home.cta.explore': 'Keşfet',
+    'home.mockup.preview': 'Canlı önizleme',
+    'home.features.heading': 'Neler yapabilirsin?',
+    'home.features.sub': 'Fikirden çalışan prototipe saniyeler içinde geç.',
+    'home.f.live.title': 'Canlı önizleme',
+    'home.f.live.desc':
+      'HTML, CSS ve JS yazarken sonucu anında yan panelde gör. Kaydetmeye gerek yok.',
+    'home.f.pre.title': 'Preprocessor desteği',
+    'home.f.pre.desc':
+      'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX ve daha fazlası kutudan çıktığı gibi.',
+    'home.f.res.title': 'Harici kaynaklar',
+    'home.f.res.desc':
+      'İstediğin CDN script ve stilini ekle; React, Tailwind, herhangi bir kütüphaneyle çalış.',
+    'home.f.save.title': 'Kaydet & sürdür',
+    'home.f.save.desc':
+      'Çalışmanı kaydet, taslakların otomatik saklansın, istediğin an kaldığın yerden devam et.',
+    'home.f.share.title': 'Paylaş & keşfet',
+    'home.f.share.desc':
+      'Projeni herkese açık yayınla, topluluğun paylaştıklarını keşfet, ilham al.',
+    'home.f.embed.title': 'Embed',
+    'home.f.embed.desc':
+      'Çalışmanı bir iframe ile blog veya dokümanına göm, canlı ve etkileşimli kalsın.',
+    'home.pre.heading': "Desteklenen diller & preprocessor'lar",
+    'home.pre.sub': 'Sevdiğin sözdizimiyle yaz; derlemeyi biz halledelim.',
+    'home.community.heading': 'Bir topluluğun parçası ol',
+    'home.community.sub':
+      'Çalışmanı yayınla, başkalarının projelerini keşfet ve birlikte daha iyi kod yaz.',
+    'home.community.discover': 'Herkese açık projeleri keşfet',
+    'home.community.like': 'Beğen ve favorilerini topla',
+    'home.community.comment': 'Yorum yaparak geri bildirim ver',
+    'home.community.fork': "Fork'la ve kendi versiyonunu yap",
+    'home.community.profile': 'Profilinde çalışmalarını sergile',
+    'home.community.card.title': 'Fikirlerini dünyayla paylaş.',
+    'home.community.card.desc':
+      'Herkese açık her proje, keşfet sayfasında yerini alır ve bir bağlantıyla erişilebilir olur.',
+    'home.community.card.cta': 'Keşfet sayfasına git',
+    'home.cta2.heading': 'Hemen kod yazmaya başla',
+    'home.cta2.sub':
+      'Hesap oluşturman gerekmez — editörü açıp yazmaya başlayabilirsin. Çalışmanı kaydetmek istediğinde saniyeler içinde kayıt ol.',
+    'home.cta2.open': 'Editörü aç',
+    'home.cta2.register': 'Ücretsiz kayıt ol',
+    'home.footer.tagline': 'HTML · CSS · JavaScript oyun alanı',
+
+    // auth
+    'auth.login.title': 'Giriş Yap',
+    'auth.register.title': 'Kayıt Ol',
+    'auth.email': 'Email',
+    'auth.username': 'Kullanıcı Adı',
+    'auth.password': 'Parola',
+    'auth.loggingIn': 'Giriş yapılıyor...',
+    'auth.registering': 'Kaydediliyor...',
+    'auth.pleaseWait': 'Lütfen bekleyin...',
+    'auth.haveAccount': 'Zaten hesabın var mı?',
+    'auth.noAccount': 'Hesabın yok mu?',
+    'auth.switchLogin': 'Giriş yap',
+    'auth.switchRegister': 'Kayıt ol',
+    'auth.failed': 'İşlem başarısız',
+    'auth.loginFailed': 'Giriş başarısız',
+    'auth.registerFailed': 'Kayıt başarısız',
+
+    // account
+    'account.title': 'Hesap',
+    'account.viewProfile': 'Profilini gör',
+    'account.changePassword': 'Şifre Değiştir',
+    'account.current': 'Mevcut şifre',
+    'account.new': 'Yeni şifre',
+    'account.confirm': 'Yeni şifre (tekrar)',
+    'account.update': 'Şifreyi Güncelle',
+    'account.saving': 'Kaydediliyor...',
+    'account.tooShort': 'Yeni şifre en az 6 karakter olmalı',
+    'account.mismatch': 'Yeni şifreler eşleşmiyor',
+    'account.updated': 'Şifren güncellendi',
+    'account.changeFailed': 'Şifre değiştirilemedi',
+
+    // editor header
+    'editor.home': 'Ana Sayfa',
+    'editor.titlePlaceholder': 'Adsız Pen',
+    'editor.titleAria': 'Pen başlığı',
+    'editor.readonly': 'Salt-okunur',
+    'editor.readonlyTitle': 'Bu pen sana ait değil — kaydetmek için forkla',
+    'editor.fontDown': 'Yazı tipini küçült',
+    'editor.fontUp': 'Yazı tipini büyüt',
+    'editor.autoRunTitle': 'Değişiklikte otomatik çalıştır',
+    'editor.theme': 'Editör teması',
+    'editor.changeViewAria': 'Görünümü değiştir',
+    'editor.changeView': 'Görünümü Değiştir',
+    'editor.view.left': 'Sol',
+    'editor.view.top': 'Üst',
+    'editor.view.right': 'Sağ',
+    'editor.format': 'Format',
+    'editor.formatTitle': 'Biçimlendir (Shift + Alt + F)',
+    'editor.formatAria': 'Biçimlendir',
+    'editor.public': 'Herkese açık',
+    'editor.private': 'Gizli',
+    'editor.publicTitle': 'Herkese açık — gizli yapmak için tıkla',
+    'editor.privateTitle': 'Gizli — herkese açık yapmak için tıkla',
+    'editor.visibilityAria': 'Görünürlüğü değiştir',
+    'editor.like': 'Beğen',
+    'editor.unlike': 'Beğeniyi geri al',
+    'editor.share': 'Paylaş',
+    'editor.shareTitle': 'Paylaşım bağlantısını kopyala',
+    'editor.fork': 'Fork',
+    'editor.forkTitle': 'Bu pen’i forkla (kendi kopyanı oluştur)',
+    'editor.save': 'Kaydet',
+    'editor.saving': 'Kaydediliyor...',
+    'editor.saveTitle': 'Kaydet (Ctrl/Cmd + S)',
+    'editor.run': 'Çalıştır',
+    'editor.runTitle': 'Çalıştır (Ctrl/Cmd + Enter)',
+    'editor.logout': 'Çıkış',
+    'editor.login': 'Giriş',
+    'editor.status.saved': 'Kaydedildi',
+    'editor.status.saveFailed': 'Kaydedilemedi',
+    'editor.status.forked': 'Fork oluşturuldu',
+    'editor.status.forkFailed': 'Fork oluşturulamadı',
+    'editor.status.likeFailed': 'Beğenilemedi',
+    'editor.status.saveFirst': 'Önce pen’i kaydet',
+    'editor.status.linkCopied': 'Bağlantı kopyalandı',
+    'editor.status.privateLinkCopied':
+      'Özel pen — sadece sen açabilirsin. Bağlantı kopyalandı',
+    'editor.status.sharePrompt': 'Paylaşım bağlantısı:',
+    'editor.status.madePublic': 'Herkese açık yapıldı',
+    'editor.status.madePrivate': 'Gizli yapıldı',
+    'editor.status.updateFailed': 'Güncellenemedi',
+    'editor.status.notYours': 'Bu pen sana ait değil — forkla',
+    'editor.status.formatted': 'Biçimlendirildi',
+    'editor.status.formatFailed': 'Biçimlendirilemedi',
+
+    // pen view
+    'penView.notFound': 'Pen bulunamadı',
+    'penView.edit': 'Düzenle',
+    'penView.embedCopied': 'Embed kodu kopyalandı',
+    'penView.embedPrompt': 'Embed kodu:',
+    'penView.comments': 'Yorumlar',
+    'penView.commentPlaceholder': 'Bir yorum yaz...',
+    'penView.commentLoginPlaceholder': 'Yorum yapmak için giriş yap',
+    'penView.post': 'Yorum Yap',
+    'penView.posting': 'Gönderiliyor...',
+    'penView.noComments': 'Henüz yorum yok. İlk yorumu sen yap!',
+    'penView.deleteComment': 'Yorumu sil',
+    'penView.commentFailed': 'Yorum eklenemedi',
+    'penView.deleteFailed': 'Silinemedi',
+    'penView.likeFailed': 'Beğenilemedi',
+    'penView.forkFailed': 'Fork oluşturulamadı',
+
+    // my pens
+    'myPens.title': 'Pen’lerim',
+    'myPens.new': 'Yeni Pen',
+    'myPens.loadFailed': 'Pen’ler yüklenemedi',
+    'myPens.confirmDelete': 'Bu pen silinsin mi?',
+    'myPens.deleteFailed': 'Silinemedi',
+    'myPens.empty': 'Henüz kayıtlı pen’in yok.',
+    'myPens.createFirst': 'İlk pen’ini oluştur →',
+    'myPens.public': 'Açık',
+    'myPens.private': 'Gizli',
+    'myPens.deleteAria': 'Pen’i sil',
+
+    // explore
+    'explore.title': 'Keşfet',
+    'explore.recent': 'Yeni',
+    'explore.popular': 'Popüler',
+    'explore.loadFailed': 'Pen’ler yüklenemedi',
+    'explore.empty': 'Henüz herkese açık pen yok. İlk paylaşan sen ol!',
+
+    // profile
+    'profile.notFound': 'Profil bulunamadı',
+    'profile.publicPens': '{count} herkese açık pen',
+    'profile.empty': 'Bu kullanıcının henüz herkese açık pen’i yok.',
+
+    // pen settings + resource list
+    'penSettings.title': 'Pen Ayarları',
+    'res.scripts.label': 'Harici Scriptler',
+    'res.scripts.desc':
+      "Bu URL'ler önizlemeye, JS kodun çalışmadan önce sırayla <script> olarak eklenir.",
+    'res.scripts.empty': 'Henüz script eklenmedi.',
+    'res.styles.label': "Harici Stylesheet'ler",
+    'res.styles.desc':
+      "Bu URL'ler önizlemenin <head> bölümüne <link rel=stylesheet> olarak, senin CSS'inden önce eklenir.",
+    'res.styles.empty': 'Henüz stylesheet eklenmedi.',
+    'res.searchPlaceholder': "CDN'de ara (ör. bootstrap, lodash)",
+    'res.searchFailed': 'CDN araması başarısız',
+    'res.addManually': 'Elle ekle',
+    'res.removeAria': 'Kaldır',
+
+    // preview
+    'preview.clearConsole': 'Konsolu temizle',
+    'preview.minimize': 'Küçült',
+    'preview.maximize': 'Tam alan',
+    'preview.consoleEmpty':
+      'Konsol çıktısı burada görünür. Aşağıdan komut çalıştırabilirsin.',
+    'preview.commandPlaceholder': 'JS komutu çalıştır...',
+
+    // not found
+    'notFound.text': 'Sayfa bulunamadı.',
+    'notFound.back': 'Ana sayfaya dön',
+
+    // embed
+    'embed.notFound': 'Pen bulunamadı',
+
+    // pen card
+    'penCard.anon': 'anonim',
+  },
+
+  en: {
+    // common
+    'common.loading': 'Loading...',
+    'common.close': 'Close',
+
+    // nav / header
+    'nav.editor': 'Editor',
+    'nav.explore': 'Explore',
+    'nav.myPens': 'My Pens',
+    'nav.account': 'Account',
+    'nav.logout': 'Log out',
+    'nav.login': 'Log in',
+    'nav.register': 'Sign up',
+
+    // home / landing
+    'home.badge': 'A live code editor in your browser',
+    'home.subtitle':
+      'Write HTML, CSS and JavaScript, preview instantly, speed up with preprocessors and share your work in one click. No setup — just code.',
+    'home.cta.start': 'Start coding',
+    'home.cta.explore': 'Explore',
+    'home.mockup.preview': 'Live preview',
+    'home.features.heading': 'What can you do?',
+    'home.features.sub': 'Go from idea to working prototype in seconds.',
+    'home.f.live.title': 'Live preview',
+    'home.f.live.desc':
+      'See the result instantly in the side panel as you write HTML, CSS and JS. No need to save.',
+    'home.f.pre.title': 'Preprocessor support',
+    'home.f.pre.desc':
+      'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX and more, out of the box.',
+    'home.f.res.title': 'External resources',
+    'home.f.res.desc':
+      'Add any CDN script or stylesheet; work with React, Tailwind or any library.',
+    'home.f.save.title': 'Save & continue',
+    'home.f.save.desc':
+      'Save your work, keep automatic drafts and pick up right where you left off.',
+    'home.f.share.title': 'Share & explore',
+    'home.f.share.desc':
+      'Publish your project publicly, explore what the community shares and get inspired.',
+    'home.f.embed.title': 'Embed',
+    'home.f.embed.desc':
+      'Embed your work in a blog or doc with an iframe — it stays live and interactive.',
+    'home.pre.heading': 'Supported languages & preprocessors',
+    'home.pre.sub': "Write in the syntax you love; we'll handle the compilation.",
+    'home.community.heading': 'Be part of a community',
+    'home.community.sub':
+      'Publish your work, explore other people’s projects and write better code together.',
+    'home.community.discover': 'Explore public projects',
+    'home.community.like': 'Like and collect your favorites',
+    'home.community.comment': 'Give feedback by commenting',
+    'home.community.fork': 'Fork and make your own version',
+    'home.community.profile': 'Showcase your work on your profile',
+    'home.community.card.title': 'Share your ideas with the world.',
+    'home.community.card.desc':
+      'Every public project shows up on the explore page and is reachable with a link.',
+    'home.community.card.cta': 'Go to the explore page',
+    'home.cta2.heading': 'Start coding right now',
+    'home.cta2.sub':
+      "You don't need an account — just open the editor and start writing. When you want to save your work, sign up in seconds.",
+    'home.cta2.open': 'Open the editor',
+    'home.cta2.register': 'Sign up for free',
+    'home.footer.tagline': 'HTML · CSS · JavaScript playground',
+
+    // auth
+    'auth.login.title': 'Log in',
+    'auth.register.title': 'Sign up',
+    'auth.email': 'Email',
+    'auth.username': 'Username',
+    'auth.password': 'Password',
+    'auth.loggingIn': 'Logging in...',
+    'auth.registering': 'Signing up...',
+    'auth.pleaseWait': 'Please wait...',
+    'auth.haveAccount': 'Already have an account?',
+    'auth.noAccount': "Don't have an account?",
+    'auth.switchLogin': 'Log in',
+    'auth.switchRegister': 'Sign up',
+    'auth.failed': 'Something went wrong',
+    'auth.loginFailed': 'Login failed',
+    'auth.registerFailed': 'Registration failed',
+
+    // account
+    'account.title': 'Account',
+    'account.viewProfile': 'View your profile',
+    'account.changePassword': 'Change password',
+    'account.current': 'Current password',
+    'account.new': 'New password',
+    'account.confirm': 'New password (again)',
+    'account.update': 'Update password',
+    'account.saving': 'Saving...',
+    'account.tooShort': 'New password must be at least 6 characters',
+    'account.mismatch': "New passwords don't match",
+    'account.updated': 'Your password has been updated',
+    'account.changeFailed': "Couldn't change password",
+
+    // editor header
+    'editor.home': 'Home',
+    'editor.titlePlaceholder': 'Untitled Pen',
+    'editor.titleAria': 'Pen title',
+    'editor.readonly': 'Read-only',
+    'editor.readonlyTitle': "This pen isn't yours — fork it to save",
+    'editor.fontDown': 'Decrease font size',
+    'editor.fontUp': 'Increase font size',
+    'editor.autoRunTitle': 'Auto-run on change',
+    'editor.theme': 'Editor theme',
+    'editor.changeViewAria': 'Change view',
+    'editor.changeView': 'Change View',
+    'editor.view.left': 'Left',
+    'editor.view.top': 'Top',
+    'editor.view.right': 'Right',
+    'editor.format': 'Format',
+    'editor.formatTitle': 'Format (Shift + Alt + F)',
+    'editor.formatAria': 'Format',
+    'editor.public': 'Public',
+    'editor.private': 'Private',
+    'editor.publicTitle': 'Public — click to make private',
+    'editor.privateTitle': 'Private — click to make public',
+    'editor.visibilityAria': 'Toggle visibility',
+    'editor.like': 'Like',
+    'editor.unlike': 'Remove like',
+    'editor.share': 'Share',
+    'editor.shareTitle': 'Copy share link',
+    'editor.fork': 'Fork',
+    'editor.forkTitle': 'Fork this pen (make your own copy)',
+    'editor.save': 'Save',
+    'editor.saving': 'Saving...',
+    'editor.saveTitle': 'Save (Ctrl/Cmd + S)',
+    'editor.run': 'Run',
+    'editor.runTitle': 'Run (Ctrl/Cmd + Enter)',
+    'editor.logout': 'Log out',
+    'editor.login': 'Log in',
+    'editor.status.saved': 'Saved',
+    'editor.status.saveFailed': "Couldn't save",
+    'editor.status.forked': 'Fork created',
+    'editor.status.forkFailed': "Couldn't create fork",
+    'editor.status.likeFailed': "Couldn't like",
+    'editor.status.saveFirst': 'Save the pen first',
+    'editor.status.linkCopied': 'Link copied',
+    'editor.status.privateLinkCopied':
+      'Private pen — only you can open it. Link copied',
+    'editor.status.sharePrompt': 'Share link:',
+    'editor.status.madePublic': 'Made public',
+    'editor.status.madePrivate': 'Made private',
+    'editor.status.updateFailed': "Couldn't update",
+    'editor.status.notYours': "This pen isn't yours — fork it",
+    'editor.status.formatted': 'Formatted',
+    'editor.status.formatFailed': "Couldn't format",
+
+    // pen view
+    'penView.notFound': 'Pen not found',
+    'penView.edit': 'Edit',
+    'penView.embedCopied': 'Embed code copied',
+    'penView.embedPrompt': 'Embed code:',
+    'penView.comments': 'Comments',
+    'penView.commentPlaceholder': 'Write a comment...',
+    'penView.commentLoginPlaceholder': 'Log in to comment',
+    'penView.post': 'Post',
+    'penView.posting': 'Posting...',
+    'penView.noComments': 'No comments yet. Be the first!',
+    'penView.deleteComment': 'Delete comment',
+    'penView.commentFailed': "Couldn't add comment",
+    'penView.deleteFailed': "Couldn't delete",
+    'penView.likeFailed': "Couldn't like",
+    'penView.forkFailed': "Couldn't create fork",
+
+    // my pens
+    'myPens.title': 'My Pens',
+    'myPens.new': 'New Pen',
+    'myPens.loadFailed': "Couldn't load pens",
+    'myPens.confirmDelete': 'Delete this pen?',
+    'myPens.deleteFailed': "Couldn't delete",
+    'myPens.empty': "You don't have any saved pens yet.",
+    'myPens.createFirst': 'Create your first pen →',
+    'myPens.public': 'Public',
+    'myPens.private': 'Private',
+    'myPens.deleteAria': 'Delete pen',
+
+    // explore
+    'explore.title': 'Explore',
+    'explore.recent': 'Recent',
+    'explore.popular': 'Popular',
+    'explore.loadFailed': "Couldn't load pens",
+    'explore.empty': 'No public pens yet. Be the first to share!',
+
+    // profile
+    'profile.notFound': 'Profile not found',
+    'profile.publicPens': '{count} public pens',
+    'profile.empty': 'This user has no public pens yet.',
+
+    // pen settings + resource list
+    'penSettings.title': 'Pen Settings',
+    'res.scripts.label': 'External scripts',
+    'res.scripts.desc':
+      'These URLs are added to the preview as <script> tags, in order, before your JS runs.',
+    'res.scripts.empty': 'No scripts added yet.',
+    'res.styles.label': 'External stylesheets',
+    'res.styles.desc':
+      "These URLs are added to the preview's <head> as <link rel=stylesheet>, before your CSS.",
+    'res.styles.empty': 'No stylesheets added yet.',
+    'res.searchPlaceholder': 'Search CDN (e.g. bootstrap, lodash)',
+    'res.searchFailed': 'CDN search failed',
+    'res.addManually': 'Add manually',
+    'res.removeAria': 'Remove',
+
+    // preview
+    'preview.clearConsole': 'Clear console',
+    'preview.minimize': 'Minimize',
+    'preview.maximize': 'Maximize',
+    'preview.consoleEmpty':
+      'Console output appears here. Run a command below.',
+    'preview.commandPlaceholder': 'Run a JS command...',
+
+    // not found
+    'notFound.text': 'Page not found.',
+    'notFound.back': 'Back to home',
+
+    // embed
+    'embed.notFound': 'Pen not found',
+
+    // pen card
+    'penCard.anon': 'anonymous',
+  },
+}
