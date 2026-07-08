@@ -15,7 +15,7 @@ function Header() {
     <nav className="flex items-center gap-3 border-b border-neutral-800 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
       <Link to="/" className="flex items-center gap-1.5 text-sm font-semibold sm:text-base">
         <IconCode className="h-5 w-5 text-indigo-400" stroke={2} />
-        CodePen Clone
+        Code Editor
       </Link>
       <Link
         to="/editor"

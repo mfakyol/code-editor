@@ -118,7 +118,7 @@ function EditorHeader() {
 
   const doFork = async () => {
     // Fork captures the *current* editor content (including unsaved tweaks),
-    // matching CodePen — not whatever was last persisted on the server.
+    // not whatever was last persisted on the server.
     const source = getSource()
     if (!source) return
     setForking(true)

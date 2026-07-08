@@ -4,6 +4,6 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   isDev: (process.env.NODE_ENV ?? 'development') === 'development',
   mongoUri:
-    process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/codepen-clone',
+    process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/code-editor',
   sessionSecret: process.env.SESSION_SECRET ?? 'dev-insecure-session-secret',
 }
