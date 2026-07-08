@@ -1,2 +1,5 @@
 # Claude Code local (per-user) settings
 .claude/settings.local.json
+
+# Secrets — never commit the real env file
+.env

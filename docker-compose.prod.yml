@@ -1,0 +1,49 @@
+# Production stack — containerized app behind your host's nginx.
+#
+# Uses the SHARED MongoDB: one mongo server ("shared-mongo") on the external
+# Docker network "shared" is reused by every project on this host. This app
+# only runs its own client + server; the database lives outside the stack.
+#
+#   1. cp .env.example .env   &&   fill in the values (incl. MONGODB_URI)
+#   2. Make sure the shared pieces exist once on the host:
+#        docker network create shared          # if not already created
+#        # and the shared-mongo container is running (see /opt/mongodb)
+#   3. docker compose -f docker-compose.prod.yml up -d --build
+#
+# The app is published on 127.0.0.1:8081 only. Your host nginx terminates TLS
+# for the domain and reverse-proxies to that port (see deploy/nginx-host.conf.example).
+
+services:
+  client:
+    build: ./client
+    depends_on:
+      - server
+    # Bind to localhost so only the host nginx can reach it (not public).
+    ports:
+      - "127.0.0.1:8081:80"
+    restart: unless-stopped
+
+  server:
+    build: ./server
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      # External traffic is HTTPS (host nginx). Express "trust proxy" + the
+      # forwarded scheme make session cookies Secure.
+      - CORS_ORIGIN=https://${DOMAIN:?set DOMAIN in .env}
+      # Shared MongoDB — the full URI (with this project's DB user + password)
+      # lives in .env and is never committed. Host is the shared-mongo container.
+      - MONGODB_URI=${MONGODB_URI:?set MONGODB_URI in .env}
+      - SESSION_SECRET=${SESSION_SECRET:?set SESSION_SECRET in .env}
+    networks:
+      # "default" so the client can reach the server; "shared" for the database.
+      - default
+      - shared
+    expose:
+      - "3001"
+    restart: unless-stopped
+
+networks:
+  # Created once on the host: docker network create shared
+  shared:
+    external: true
