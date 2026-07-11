@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import type { CompileRequest } from '../types/compile.types'
+import { AppError } from '../errors/AppError'
 import type {
   CssPreprocessor,
   HtmlPreprocessor,
@@ -21,7 +22,7 @@ function isString(value: unknown): value is string {
 
 export function validateCompileBody(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ): void {
   const body = req.body as Partial<CompileRequest>
@@ -60,11 +61,7 @@ export function validateCompileBody(
   }
 
   if (errors.length > 0) {
-    res.status(400).json({
-      message: 'Invalid request body',
-      errors,
-    })
-    return
+    throw new AppError(400, 'Invalid request body', 'VALIDATION', errors)
   }
 
   next()

@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { Pen } from '../models/Pen'
 import { Like } from '../models/Like'
 import { Comment } from '../models/Comment'
+import { AppError } from '../errors/AppError'
 
 type PenInput = {
   title?: unknown
@@ -124,18 +125,15 @@ export async function getPen(
 ): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const pen = await Pen.findById(String(req.params.id)).lean()
     if (!pen) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const isOwner = req.user ? String(pen.owner) === req.user.id : false
     if (!pen.isPublic && !isOwner) {
-      res.status(403).json({ message: 'This pen is private' })
-      return
+      throw new AppError(403, 'This pen is private', 'PEN_PRIVATE')
     }
 
     const penId = String(req.params.id)
@@ -161,18 +159,15 @@ export async function forkPen(
 ): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const source = await Pen.findById(String(req.params.id)).lean()
     if (!source) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const isOwner = String(source.owner) === req.user!.id
     if (!source.isPublic && !isOwner) {
-      res.status(403).json({ message: 'This pen is private' })
-      return
+      throw new AppError(403, 'This pen is private', 'PEN_PRIVATE')
     }
 
     const fork = await Pen.create({
@@ -211,17 +206,14 @@ export async function updatePen(
 ): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const pen = await Pen.findById(String(req.params.id))
     if (!pen) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     if (String(pen.owner) !== req.user!.id) {
-      res.status(403).json({ message: 'Not your pen' })
-      return
+      throw new AppError(403, 'Not your pen', 'FORBIDDEN')
     }
 
     const data = normalizeBody(req.body as PenInput)
@@ -240,17 +232,14 @@ export async function deletePen(
 ): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const pen = await Pen.findById(String(req.params.id))
     if (!pen) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     if (String(pen.owner) !== req.user!.id) {
-      res.status(403).json({ message: 'Not your pen' })
-      return
+      throw new AppError(403, 'Not your pen', 'FORBIDDEN')
     }
     await pen.deleteOne()
     res.json({ ok: true })
@@ -269,17 +258,14 @@ export async function setVisibility(
 ): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     const pen = await Pen.findById(String(req.params.id))
     if (!pen) {
-      res.status(404).json({ message: 'Pen not found' })
-      return
+      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
     }
     if (String(pen.owner) !== req.user!.id) {
-      res.status(403).json({ message: 'Not your pen' })
-      return
+      throw new AppError(403, 'Not your pen', 'FORBIDDEN')
     }
     pen.isPublic = (req.body as { isPublic?: unknown })?.isPublic === true
     await pen.save()

@@ -2,25 +2,20 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import penService, { type SavedPen } from '@/services/pen.service'
 import { useCompiledDoc } from '@/hooks/useCompiledDoc'
-import { useI18n } from '@/stores/i18n.store'
 
 function Embed() {
   const { id } = useParams()
-  const { t } = useI18n()
   const [pen, setPen] = useState<SavedPen | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
     let active = true
-    penService
-      .get(id)
-      .then(({ pen }) => {
-        if (active) setPen(pen)
-      })
-      .catch((err) => {
-        if (active) setError(err instanceof Error ? err.message : t('embed.notFound'))
-      })
+    penService.get(id).then((res) => {
+      if (!active) return
+      if (res.success) setPen(res.data.pen)
+      else setError(res.error.message)
+    })
     return () => {
       active = false
     }

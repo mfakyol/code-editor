@@ -23,17 +23,12 @@ function MyPens() {
     if (!user) return
     let active = true
     setLoading(true)
-    penService
-      .list()
-      .then((res) => {
-        if (active) setPens(res.pens)
-      })
-      .catch((err) => {
-        if (active) setError(err instanceof Error ? err.message : t('myPens.loadFailed'))
-      })
-      .finally(() => {
-        if (active) setLoading(false)
-      })
+    penService.list().then((res) => {
+      if (!active) return
+      if (res.success) setPens(res.data.pens)
+      else setError(res.error.message)
+      setLoading(false)
+    })
     return () => {
       active = false
     }
@@ -50,13 +45,12 @@ function MyPens() {
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('myPens.confirmDelete'))) return
     setDeletingId(id)
-    try {
-      await penService.remove(id)
+    const res = await penService.remove(id)
+    setDeletingId(null)
+    if (res.success) {
       setPens((current) => current.filter((pen) => pen._id !== id))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('myPens.deleteFailed'))
-    } finally {
-      setDeletingId(null)
+    } else {
+      setError(res.error.message)
     }
   }
 

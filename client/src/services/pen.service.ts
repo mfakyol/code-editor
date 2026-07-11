@@ -1,5 +1,5 @@
 import type { PenSettings } from '@/types/preprocessors'
-import { request } from '@/utils/api'
+import { api } from '@/utils/api'
 
 export type SavedPen = {
   _id: string
@@ -44,15 +44,15 @@ export type PenInput = {
 }
 
 function list() {
-  return request<{ pens: PenSummary[] }>('/pens')
+  return api.get<{ pens: PenSummary[] }>('/pens')
 }
 
 function publicList(sort: 'recent' | 'popular' = 'recent') {
-  return request<{ pens: PublicPen[] }>(`/pens/public?sort=${sort}`)
+  return api.get<{ pens: PublicPen[] }>(`/pens/public?sort=${sort}`)
 }
 
 function get(id: string) {
-  return request<{
+  return api.get<{
     pen: SavedPen
     isOwner: boolean
     likeCount: number
@@ -62,32 +62,23 @@ function get(id: string) {
 }
 
 function fork(id: string) {
-  return request<{ pen: SavedPen }>(`/pens/${id}/fork`, { method: 'POST' })
+  return api.post<{ pen: SavedPen }>(`/pens/${id}/fork`)
 }
 
 function create(data: PenInput) {
-  return request<{ pen: SavedPen }>('/pens', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
+  return api.post<{ pen: SavedPen }>('/pens', data)
 }
 
 function update(id: string, data: PenInput) {
-  return request<{ pen: SavedPen }>(`/pens/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  })
+  return api.put<{ pen: SavedPen }>(`/pens/${id}`, data)
 }
 
 function setVisibility(id: string, isPublic: boolean) {
-  return request<{ isPublic: boolean }>(`/pens/${id}/visibility`, {
-    method: 'PATCH',
-    body: JSON.stringify({ isPublic }),
-  })
+  return api.patch<{ isPublic: boolean }>(`/pens/${id}/visibility`, { isPublic })
 }
 
 function remove(id: string) {
-  return request<{ ok: true }>(`/pens/${id}`, { method: 'DELETE' })
+  return api.delete<{ ok: true }>(`/pens/${id}`)
 }
 
 const penService = {

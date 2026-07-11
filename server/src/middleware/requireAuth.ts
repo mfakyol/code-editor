@@ -1,13 +1,10 @@
 import type { Request, Response, NextFunction } from 'express'
+import { AppError } from '../errors/AppError'
 
-export function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   if (req.isAuthenticated && req.isAuthenticated()) {
     next()
     return
   }
-  res.status(401).json({ message: 'Authentication required' })
+  throw new AppError(401, 'Authentication required', 'UNAUTHENTICATED')
 }

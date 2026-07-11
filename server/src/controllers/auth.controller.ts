@@ -1,10 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import {
-  User,
-  hashPassword,
-  verifyPassword,
-} from '../models/User'
+import { User, hashPassword, verifyPassword } from '../models/User'
+import { AppError } from '../errors/AppError'
 
 type PublicUser = { id: string; email: string; username: string }
 
@@ -12,11 +9,7 @@ function toPublicUser(user: Express.User): PublicUser {
   return { id: user.id, email: user.email, username: user.username }
 }
 
-export async function register(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const email = String(req.body?.email ?? '')
       .toLowerCase()
@@ -35,26 +28,22 @@ export async function register(
       errors.push('Password must be at least 6 characters')
     }
     if (errors.length > 0) {
-      res.status(400).json({ message: 'Invalid input', errors })
-      return
+      throw new AppError(400, 'Invalid input', 'VALIDATION', errors)
     }
 
     const existing = await User.findOne({ email })
     if (existing) {
-      res.status(409).json({ message: 'Email already registered' })
-      return
+      throw new AppError(409, 'Email already registered', 'EMAIL_TAKEN')
     }
 
     const usernameTaken = await User.findOne({ username })
     if (usernameTaken) {
-      res.status(409).json({ message: 'Username already taken' })
-      return
+      throw new AppError(409, 'Username already taken', 'USERNAME_TAKEN')
     }
 
     const passwordHash = await hashPassword(password)
     const user = await User.create({ email, username, passwordHash })
 
-    // Log the new user in immediately.
     req.login(user, (err) => {
       if (err) {
         next(err)
@@ -76,7 +65,7 @@ export function login(req: Request, res: Response, next: NextFunction): void {
         return
       }
       if (!user) {
-        res.status(401).json({ message: info?.message ?? 'Login failed' })
+        next(new AppError(401, info?.message ?? 'Login failed', 'LOGIN_FAILED'))
         return
       }
       req.login(user, (loginErr) => {
@@ -111,32 +100,23 @@ export function me(req: Request, res: Response): void {
   res.json({ user: null })
 }
 
-export async function changePassword(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const currentPassword = String(req.body?.currentPassword ?? '')
     const newPassword = String(req.body?.newPassword ?? '')
 
     if (newPassword.length < 6) {
-      res
-        .status(400)
-        .json({ message: 'New password must be at least 6 characters' })
-      return
+      throw new AppError(400, 'New password must be at least 6 characters', 'VALIDATION')
     }
 
     const user = await User.findById(req.user!.id)
     if (!user) {
-      res.status(404).json({ message: 'User not found' })
-      return
+      throw new AppError(404, 'User not found', 'USER_NOT_FOUND')
     }
 
     const valid = await verifyPassword(currentPassword, user.passwordHash)
     if (!valid) {
-      res.status(401).json({ message: 'Current password is incorrect' })
-      return
+      throw new AppError(401, 'Current password is incorrect', 'INVALID_CREDENTIALS')
     }
 
     user.passwordHash = await hashPassword(newPassword)

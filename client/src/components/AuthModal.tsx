@@ -1,5 +1,5 @@
-import AuthForm from '@/components/AuthForm'
 import Modal from '@/components/ui/Modal'
+import AuthForm from '@/components/AuthForm'
 import { useI18n } from '@/stores/i18n.store'
 
 export type AuthMode = 'login' | 'register'

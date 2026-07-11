@@ -17,17 +17,12 @@ function Explore() {
     let active = true
     setLoading(true)
     setError(null)
-    penService
-      .publicList(sort)
-      .then((res) => {
-        if (active) setPens(res.pens)
-      })
-      .catch((err) => {
-        if (active) setError(err instanceof Error ? err.message : t('explore.loadFailed'))
-      })
-      .finally(() => {
-        if (active) setLoading(false)
-      })
+    penService.publicList(sort).then((res) => {
+      if (!active) return
+      if (res.success) setPens(res.data.pens)
+      else setError(res.error.message)
+      setLoading(false)
+    })
     return () => {
       active = false
     }

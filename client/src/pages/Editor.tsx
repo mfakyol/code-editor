@@ -151,28 +151,26 @@ function EditorContent() {
     }
 
     let active = true
-    penService
-      .get(id)
-      .then(({ pen, isOwner, likeCount, commentCount, likedByMe }) => {
-        if (!active) return
-        setHtml(pen.html)
-        setCss(pen.css)
-        setJs(pen.js)
-        updateSettings(pen.settings)
-        setTitle(pen.title)
-        setPenId(pen._id)
-        setIsPublic(pen.isPublic)
-        setIsOwner(isOwner)
-        setSocial({ likeCount, likedByMe, commentCount })
-        baselineFpRef.current = JSON.stringify({
-          title: pen.title,
-          html: pen.html,
-          css: pen.css,
-          js: pen.js,
-          settings: pen.settings,
-        })
+    penService.get(id).then((res) => {
+      if (!active || !res.success) return
+      const { pen, isOwner, likeCount, commentCount, likedByMe } = res.data
+      setHtml(pen.html)
+      setCss(pen.css)
+      setJs(pen.js)
+      updateSettings(pen.settings)
+      setTitle(pen.title)
+      setPenId(pen._id)
+      setIsPublic(pen.isPublic)
+      setIsOwner(isOwner)
+      setSocial({ likeCount, likedByMe, commentCount })
+      baselineFpRef.current = JSON.stringify({
+        title: pen.title,
+        html: pen.html,
+        css: pen.css,
+        js: pen.js,
+        settings: pen.settings,
       })
-      .catch(() => {})
+    })
     return () => {
       active = false
     }

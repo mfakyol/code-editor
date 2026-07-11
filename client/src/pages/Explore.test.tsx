@@ -37,7 +37,7 @@ describe('Explore page', () => {
   beforeEach(() => {
     window.localStorage.setItem('lang', 'en')
     mockedList.mockReset()
-    mockedList.mockResolvedValue({ pens: [makePen({})] })
+    mockedList.mockResolvedValue({ success: true, data: { pens: [makePen({})] } })
   })
 
   it('renders public pens with owner and like count', async () => {
@@ -63,7 +63,7 @@ describe('Explore page', () => {
   })
 
   it('shows an empty state when there are no pens', async () => {
-    mockedList.mockResolvedValue({ pens: [] })
+    mockedList.mockResolvedValue({ success: true, data: { pens: [] } })
     renderExplore()
     expect(await screen.findByText(/No public pens yet/)).toBeInTheDocument()
   })

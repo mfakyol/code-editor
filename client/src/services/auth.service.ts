@@ -1,4 +1,4 @@
-import { request } from '@/utils/api'
+import { api } from '@/utils/api'
 import { useAuthStore } from '@/stores/auth.store'
 
 export type AuthUser = {
@@ -8,42 +8,30 @@ export type AuthUser = {
 }
 
 async function loadUser() {
-  try {
-    const res = await request<{ user: AuthUser | null }>('/auth/me')
-    useAuthStore.setState({ user: res.user })
-  } catch {
-    useAuthStore.setState({ user: null })
-  } finally {
-    useAuthStore.setState({ loading: false })
-  }
+  const res = await api.get<{ user: AuthUser | null }>('/auth/me')
+  useAuthStore.setState({ user: res.success ? res.data.user : null, loading: false })
 }
 
 async function login(email: string, password: string) {
-  const res = await request<{ user: AuthUser }>('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  })
-  useAuthStore.setState({ user: res.user })
+  const res = await api.post<{ user: AuthUser }>('/auth/login', { email, password })
+  if (res.success) useAuthStore.setState({ user: res.data.user })
+  return res
 }
 
 async function register(email: string, username: string, password: string) {
-  const res = await request<{ user: AuthUser }>('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify({ email, username, password }),
-  })
-  useAuthStore.setState({ user: res.user })
+  const res = await api.post<{ user: AuthUser }>('/auth/register', { email, username, password })
+  if (res.success) useAuthStore.setState({ user: res.data.user })
+  return res
 }
 
 async function logout() {
-  await request<{ ok: true }>('/auth/logout', { method: 'POST' })
-  useAuthStore.setState({ user: null })
+  const res = await api.post<{ ok: true }>('/auth/logout')
+  if (res.success) useAuthStore.setState({ user: null })
+  return res
 }
 
 function changePassword(currentPassword: string, newPassword: string) {
-  return request<{ ok: true }>('/auth/change-password', {
-    method: 'POST',
-    body: JSON.stringify({ currentPassword, newPassword }),
-  })
+  return api.post<{ ok: true }>('/auth/change-password', { currentPassword, newPassword })
 }
 
 const authService = {

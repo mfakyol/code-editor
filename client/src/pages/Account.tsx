@@ -41,17 +41,14 @@ function Account() {
     setErrors({})
 
     setSaving(true)
-    try {
-      await authService.changePassword(values.current, result.data.next)
+    const res = await authService.changePassword(values.current, result.data.next)
+    setSaving(false)
+
+    if (res.success) {
       setMessage({ type: 'ok', text: t('account.updated') })
       form.reset()
-    } catch (err) {
-      setMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : t('account.changeFailed'),
-      })
-    } finally {
-      setSaving(false)
+    } else {
+      setMessage({ type: 'error', text: res.error.message })
     }
   }
 

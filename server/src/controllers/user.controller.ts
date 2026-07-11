@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
 import { User } from '../models/User'
 import { Pen } from '../models/Pen'
+import { AppError } from '../errors/AppError'
 
 // Public profile: a user's display name plus their public pens (with like
 // counts), newest first. Private pens are never exposed here.
@@ -14,8 +15,7 @@ export async function getUserProfile(
     const username = String(req.params.username)
     const user = await User.findOne({ username }).select('username').lean()
     if (!user) {
-      res.status(404).json({ message: 'User not found' })
-      return
+      throw new AppError(404, 'User not found', 'USER_NOT_FOUND')
     }
 
     const pens = await Pen.aggregate([

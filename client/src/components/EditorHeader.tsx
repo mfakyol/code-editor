@@ -95,24 +95,22 @@ function EditorHeader() {
 
     setSaving(true)
     setStatus(null)
-    try {
-      const payload = { title, isPublic, ...source }
-      if (penId) {
-        await penService.update(penId, payload)
-      } else {
-        const { pen } = await penService.create(payload)
-        setPenId(pen._id)
-        setIsOwner(true)
-        clearDraft()
-        navigate(`/pen/${pen._id}`)
-      }
-      markSaved()
-      flashStatus(t('editor.status.saved'))
-    } catch (err) {
-      setStatus(err instanceof Error ? err.message : t('editor.status.saveFailed'))
-    } finally {
-      setSaving(false)
+    const payload = { title, isPublic, ...source }
+    const res = penId ? await penService.update(penId, payload) : await penService.create(payload)
+    setSaving(false)
+
+    if (!res.success) {
+      setStatus(res.error.message)
+      return
     }
+    if (!penId) {
+      setPenId(res.data.pen._id)
+      setIsOwner(true)
+      clearDraft()
+      navigate(`/pen/${res.data.pen._id}`)
+    }
+    markSaved()
+    flashStatus(t('editor.status.saved'))
   }
 
   const doFork = async () => {
@@ -120,25 +118,21 @@ function EditorHeader() {
     if (!source) return
     setForking(true)
     setStatus(null)
-    try {
-      const forkTitle = `${title} (fork)`
-      const { pen } = await penService.create({
-        title: forkTitle,
-        isPublic: false,
-        ...source,
-      })
-      setPenId(pen._id)
-      setIsOwner(true)
-      setIsPublic(false)
-      setTitle(forkTitle)
-      markSaved()
-      navigate(`/pen/${pen._id}`)
-      flashStatus(t('editor.status.forked'))
-    } catch (err) {
-      setStatus(err instanceof Error ? err.message : t('editor.status.forkFailed'))
-    } finally {
-      setForking(false)
+    const forkTitle = `${title} (fork)`
+    const res = await penService.create({ title: forkTitle, isPublic: false, ...source })
+    setForking(false)
+
+    if (!res.success) {
+      setStatus(res.error.message)
+      return
     }
+    setPenId(res.data.pen._id)
+    setIsOwner(true)
+    setIsPublic(false)
+    setTitle(forkTitle)
+    markSaved()
+    navigate(`/pen/${res.data.pen._id}`)
+    flashStatus(t('editor.status.forked'))
   }
 
   const handleFork = () => {
@@ -152,11 +146,11 @@ function EditorHeader() {
 
   const doLike = async () => {
     if (!penId) return
-    try {
-      const { liked, likeCount: count } = await socialService.like(penId)
-      setSocial({ likeCount: count, likedByMe: liked, commentCount })
-    } catch (err) {
-      setStatus(err instanceof Error ? err.message : t('editor.status.likeFailed'))
+    const res = await socialService.like(penId)
+    if (res.success) {
+      setSocial({ likeCount: res.data.likeCount, likedByMe: res.data.liked, commentCount })
+    } else {
+      setStatus(res.error.message)
     }
   }
 
@@ -188,12 +182,12 @@ function EditorHeader() {
     setIsPublic(nextValue)
 
     if (penId) {
-      try {
-        await penService.setVisibility(penId, nextValue)
+      const res = await penService.setVisibility(penId, nextValue)
+      if (res.success) {
         flashStatus(nextValue ? t('editor.status.madePublic') : t('editor.status.madePrivate'))
-      } catch (err) {
+      } else {
         setIsPublic(!nextValue)
-        setStatus(err instanceof Error ? err.message : t('editor.status.updateFailed'))
+        setStatus(res.error.message)
       }
     }
   }

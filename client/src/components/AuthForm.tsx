@@ -3,7 +3,7 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { useI18n } from '@/stores/i18n.store'
 import authService from '@/services/auth.service'
-import { useCallback, useState, type SubmitEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { loginSchema, registerSchema, fieldErrors } from '@/schemas/auth.schema'
 
 type AuthFormProps = {
@@ -15,39 +15,33 @@ function AuthForm({ mode, onSuccess }: AuthFormProps) {
   const { t } = useI18n()
   const isRegister = mode === 'register'
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [formError, setFormError] = useState<string | null>(null)
+  const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = useCallback(
-    async (event: SubmitEvent<HTMLFormElement>) => {
-      event.preventDefault()
-      const values = Object.fromEntries(new FormData(event.currentTarget)) as Record<string, string>
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const values = Object.fromEntries(new FormData(event.currentTarget)) as Record<string, string>
 
-      const result = (isRegister ? registerSchema : loginSchema).safeParse(values)
-      if (!result.success) {
-        setErrors(fieldErrors(result.error))
-        return
-      }
+    const result = (isRegister ? registerSchema : loginSchema).safeParse(values)
+    if (!result.success) {
+      setErrors(fieldErrors(result.error))
+      return
+    }
 
-      setErrors({})
-      setFormError(null)
-      setSubmitting(true)
-      try {
-        if (isRegister) {
-          await authService.register(result.data.email, values.username, result.data.password)
-        } else {
-          await authService.login(result.data.email, result.data.password)
-        }
-        onSuccess()
-      } catch (err) {
-        const fallback = t(isRegister ? 'auth.registerFailed' : 'auth.loginFailed')
-        setFormError(err instanceof Error ? err.message : fallback)
-      } finally {
-        setSubmitting(false)
-      }
-    },
-    [isRegister, onSuccess, t],
-  )
+    setErrors({})
+    setFormError('')
+    setSubmitting(true)
+    const res = isRegister
+      ? await authService.register(result.data.email, values.username, result.data.password)
+      : await authService.login(result.data.email, result.data.password)
+    setSubmitting(false)
+
+    if (res.success) {
+      onSuccess()
+    } else {
+      setFormError(res.error.message)
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">

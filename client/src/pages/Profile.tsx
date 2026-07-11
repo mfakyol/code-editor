@@ -19,17 +19,12 @@ function Profile() {
     let active = true
     setLoading(true)
     setError(null)
-    userService
-      .profile(username)
-      .then((res) => {
-        if (active) setPens(res.pens)
-      })
-      .catch((err) => {
-        if (active) setError(err instanceof Error ? err.message : t('profile.notFound'))
-      })
-      .finally(() => {
-        if (active) setLoading(false)
-      })
+    userService.profile(username).then((res) => {
+      if (!active) return
+      if (res.success) setPens(res.data.pens)
+      else setError(res.error.message)
+      setLoading(false)
+    })
     return () => {
       active = false
     }

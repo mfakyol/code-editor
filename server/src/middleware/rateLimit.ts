@@ -45,7 +45,9 @@ export function rateLimit({ windowMs, max }: Options) {
       const retryAfter = Math.ceil((bucket.resetAt - now) / 1000)
       res.setHeader('Retry-After', String(retryAfter))
       res.status(429).json({
-        message: `Too many requests — try again in ${retryAfter}s`,
+        title: `Too many requests — try again in ${retryAfter}s`,
+        status: 429,
+        code: 'RATE_LIMITED',
       })
       return
     }

@@ -32,18 +32,17 @@ function PenView() {
   useEffect(() => {
     if (!id) return
     let active = true
-    penService
-      .get(id)
-      .then(({ pen, isOwner, likeCount, likedByMe }) => {
-        if (!active) return
-        setPen(pen)
-        setIsOwner(isOwner)
-        setLikeCount(likeCount)
-        setLikedByMe(likedByMe)
-      })
-      .catch((err) => {
-        if (active) setError(err instanceof Error ? err.message : t('penView.notFound'))
-      })
+    penService.get(id).then((res) => {
+      if (!active) return
+      if (res.success) {
+        setPen(res.data.pen)
+        setIsOwner(res.data.isOwner)
+        setLikeCount(res.data.likeCount)
+        setLikedByMe(res.data.likedByMe)
+      } else {
+        setError(res.error.message)
+      }
+    })
     return () => {
       active = false
     }
@@ -52,12 +51,9 @@ function PenView() {
   useEffect(() => {
     if (!id) return
     let active = true
-    socialService
-      .comments(id)
-      .then((res) => {
-        if (active) setComments(res.comments)
-      })
-      .catch(() => {})
+    socialService.comments(id).then((res) => {
+      if (active && res.success) setComments(res.data.comments)
+    })
     return () => {
       active = false
     }
@@ -80,12 +76,12 @@ function PenView() {
       return
     }
     if (!id) return
-    try {
-      const { liked, likeCount: count } = await socialService.like(id)
-      setLikedByMe(liked)
-      setLikeCount(count)
-    } catch (err) {
-      flashStatus(err instanceof Error ? err.message : t('penView.likeFailed'))
+    const res = await socialService.like(id)
+    if (res.success) {
+      setLikedByMe(res.data.liked)
+      setLikeCount(res.data.likeCount)
+    } else {
+      flashStatus(res.error.message)
     }
   }
 
@@ -95,11 +91,11 @@ function PenView() {
       return
     }
     if (!id) return
-    try {
-      const { pen: fork } = await penService.fork(id)
-      navigate(`/pen/${fork._id}`)
-    } catch (err) {
-      flashStatus(err instanceof Error ? err.message : t('penView.forkFailed'))
+    const res = await penService.fork(id)
+    if (res.success) {
+      navigate(`/pen/${res.data.pen._id}`)
+    } else {
+      flashStatus(res.error.message)
     }
   }
 
@@ -124,24 +120,23 @@ function PenView() {
       return
     }
     setPosting(true)
-    try {
-      const { comment } = await socialService.addComment(id, body)
-      setComments((current) => [comment, ...current])
+    const res = await socialService.addComment(id, body)
+    setPosting(false)
+    if (res.success) {
+      setComments((current) => [res.data.comment, ...current])
       setCommentText('')
-    } catch (err) {
-      flashStatus(err instanceof Error ? err.message : t('penView.commentFailed'))
-    } finally {
-      setPosting(false)
+    } else {
+      flashStatus(res.error.message)
     }
   }
 
   const handleDeleteComment = async (commentId: string) => {
     if (!id) return
-    try {
-      await socialService.deleteComment(id, commentId)
+    const res = await socialService.deleteComment(id, commentId)
+    if (res.success) {
       setComments((current) => current.filter((c) => c._id !== commentId))
-    } catch (err) {
-      flashStatus(err instanceof Error ? err.message : t('penView.deleteFailed'))
+    } else {
+      flashStatus(res.error.message)
     }
   }
 

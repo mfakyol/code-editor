@@ -1,7 +1,5 @@
 import type { PenSettings } from '@/types/preprocessors'
-import { API_BASE } from '@/utils/api'
-
-const COMPILE_URL = `${API_BASE}/api/compile`
+import { api } from '@/utils/api'
 
 export type CompileResult = {
   html: string
@@ -16,11 +14,6 @@ function needsServerCompilation(settings: PenSettings): boolean {
   )
 }
 
-function toErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message
-  return String(error)
-}
-
 async function compileAll(
   source: { html: string; css: string; js: string },
   settings: PenSettings,
@@ -29,31 +22,13 @@ async function compileAll(
     return { ...source, errors: [] }
   }
 
-  try {
-    const res = await fetch(COMPILE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...source, settings }),
-    })
+  const res = await api.post<CompileResult>('/compile', { ...source, settings })
 
-    const body: unknown = await res.json().catch(() => null)
-
-    if (!res.ok) {
-      const errorBody = body as { message?: string; errors?: string[] } | null
-      const errors = Array.isArray(errorBody?.errors)
-        ? errorBody.errors
-        : [`Server error (${res.status}): ${errorBody?.message ?? res.statusText}`]
-
-      return { ...source, errors }
-    }
-
-    return body as CompileResult
-  } catch (error) {
-    return {
-      ...source,
-      errors: [`Network: ${toErrorMessage(error)}`],
-    }
+  if (res.success) {
+    return res.data
   }
+
+  return { ...source, errors: res.error.errors.length > 0 ? res.error.errors : [res.error.message] }
 }
 
 const compileService = {

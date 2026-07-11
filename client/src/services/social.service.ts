@@ -1,4 +1,4 @@
-import { request } from '@/utils/api'
+import { api } from '@/utils/api'
 
 export type PenComment = {
   _id: string
@@ -9,26 +9,19 @@ export type PenComment = {
 }
 
 function like(id: string) {
-  return request<{ liked: boolean; likeCount: number }>(`/pens/${id}/like`, {
-    method: 'POST',
-  })
+  return api.post<{ liked: boolean; likeCount: number }>(`/pens/${id}/like`)
 }
 
 function comments(id: string) {
-  return request<{ comments: PenComment[] }>(`/pens/${id}/comments`)
+  return api.get<{ comments: PenComment[] }>(`/pens/${id}/comments`)
 }
 
 function addComment(id: string, body: string) {
-  return request<{ comment: PenComment }>(`/pens/${id}/comments`, {
-    method: 'POST',
-    body: JSON.stringify({ body }),
-  })
+  return api.post<{ comment: PenComment }>(`/pens/${id}/comments`, { body })
 }
 
 function deleteComment(id: string, commentId: string) {
-  return request<{ ok: true }>(`/pens/${id}/comments/${commentId}`, {
-    method: 'DELETE',
-  })
+  return api.delete<{ ok: true }>(`/pens/${id}/comments/${commentId}`)
 }
 
 const socialService = {
