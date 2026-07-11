@@ -27,12 +27,7 @@ type BuildOptions = {
   externalStyles?: string[]
 }
 
-export function buildSrcDoc(
-  html: string,
-  css: string,
-  js: string,
-  options: BuildOptions = {},
-): string {
+export function buildSrcDoc(html: string, css: string, js: string, options: BuildOptions = {}): string {
   const safeJs = escapeScript(js)
   const scriptTags = buildScriptTags(options.externalScripts ?? [])
   const styleLinks = buildStyleLinks(options.externalStyles ?? [])
@@ -90,7 +85,7 @@ export function buildSrcDoc(
           send('error', [event.reason?.message ?? String(event.reason)])
         })
 
-        // REPL: evaluate commands sent from the parent console input.
+
         window.addEventListener('message', (event) => {
           if (!event.data || event.data.type !== 'preview-eval') return
           try {

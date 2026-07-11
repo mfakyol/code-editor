@@ -1,13 +1,10 @@
 export type Lang = 'tr' | 'en'
 
-// Flat, dot-namespaced keys. Keep tr and en in sync.
 export const translations: Record<Lang, Record<string, string>> = {
   tr: {
-    // common
     'common.loading': 'Yükleniyor...',
     'common.close': 'Kapat',
 
-    // nav / header
     'nav.editor': 'Editör',
     'nav.explore': 'Keşfet',
     'nav.myPens': 'Pen’lerim',
@@ -16,7 +13,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'nav.login': 'Giriş',
     'nav.register': 'Kayıt Ol',
 
-    // home / landing
     'home.badge': 'Tarayıcında canlı kod editörü',
     'home.subtitle':
       "HTML, CSS ve JavaScript'i yaz, anında önizle, preprocessor'larla hızlan ve çalışmanı tek tıkla paylaş. Kurulum yok — sadece kod.",
@@ -26,28 +22,21 @@ export const translations: Record<Lang, Record<string, string>> = {
     'home.features.heading': 'Neler yapabilirsin?',
     'home.features.sub': 'Fikirden çalışan prototipe saniyeler içinde geç.',
     'home.f.live.title': 'Canlı önizleme',
-    'home.f.live.desc':
-      'HTML, CSS ve JS yazarken sonucu anında yan panelde gör. Kaydetmeye gerek yok.',
+    'home.f.live.desc': 'HTML, CSS ve JS yazarken sonucu anında yan panelde gör. Kaydetmeye gerek yok.',
     'home.f.pre.title': 'Preprocessor desteği',
-    'home.f.pre.desc':
-      'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX ve daha fazlası kutudan çıktığı gibi.',
+    'home.f.pre.desc': 'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX ve daha fazlası kutudan çıktığı gibi.',
     'home.f.res.title': 'Harici kaynaklar',
-    'home.f.res.desc':
-      'İstediğin CDN script ve stilini ekle; React, Tailwind, herhangi bir kütüphaneyle çalış.',
+    'home.f.res.desc': 'İstediğin CDN script ve stilini ekle; React, Tailwind, herhangi bir kütüphaneyle çalış.',
     'home.f.save.title': 'Kaydet & sürdür',
-    'home.f.save.desc':
-      'Çalışmanı kaydet, taslakların otomatik saklansın, istediğin an kaldığın yerden devam et.',
+    'home.f.save.desc': 'Çalışmanı kaydet, taslakların otomatik saklansın, istediğin an kaldığın yerden devam et.',
     'home.f.share.title': 'Paylaş & keşfet',
-    'home.f.share.desc':
-      'Projeni herkese açık yayınla, topluluğun paylaştıklarını keşfet, ilham al.',
+    'home.f.share.desc': 'Projeni herkese açık yayınla, topluluğun paylaştıklarını keşfet, ilham al.',
     'home.f.embed.title': 'Embed',
-    'home.f.embed.desc':
-      'Çalışmanı bir iframe ile blog veya dokümanına göm, canlı ve etkileşimli kalsın.',
+    'home.f.embed.desc': 'Çalışmanı bir iframe ile blog veya dokümanına göm, canlı ve etkileşimli kalsın.',
     'home.pre.heading': "Desteklenen diller & preprocessor'lar",
     'home.pre.sub': 'Sevdiğin sözdizimiyle yaz; derlemeyi biz halledelim.',
     'home.community.heading': 'Bir topluluğun parçası ol',
-    'home.community.sub':
-      'Çalışmanı yayınla, başkalarının projelerini keşfet ve birlikte daha iyi kod yaz.',
+    'home.community.sub': 'Çalışmanı yayınla, başkalarının projelerini keşfet ve birlikte daha iyi kod yaz.',
     'home.community.discover': 'Herkese açık projeleri keşfet',
     'home.community.like': 'Beğen ve favorilerini topla',
     'home.community.comment': 'Yorum yaparak geri bildirim ver',
@@ -64,7 +53,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'home.cta2.register': 'Ücretsiz kayıt ol',
     'home.footer.tagline': 'HTML · CSS · JavaScript oyun alanı',
 
-    // auth
     'auth.login.title': 'Giriş Yap',
     'auth.register.title': 'Kayıt Ol',
     'auth.email': 'Email',
@@ -80,8 +68,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     'auth.failed': 'İşlem başarısız',
     'auth.loginFailed': 'Giriş başarısız',
     'auth.registerFailed': 'Kayıt başarısız',
+    'auth.emailInvalid': 'Geçerli bir email girin',
+    'auth.usernameRequired': 'Kullanıcı adı gerekli',
+    'auth.usernameShort': 'Kullanıcı adı en az 3 karakter olmalı',
+    'auth.usernameLong': 'Kullanıcı adı en fazla 64 karakter olabilir',
+    'auth.usernameInvalid': 'Kullanıcı adı yalnızca harf, rakam, - ve _ içerebilir',
+    'auth.passwordRequired': 'Parola gerekli',
+    'auth.passwordShort': 'Parola en az 8 karakter olmalı',
+    'auth.passwordWeak': 'Parola büyük harf, küçük harf ve rakam içermeli',
 
-    // account
     'account.title': 'Hesap',
     'account.viewProfile': 'Profilini gör',
     'account.changePassword': 'Şifre Değiştir',
@@ -95,7 +90,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'account.updated': 'Şifren güncellendi',
     'account.changeFailed': 'Şifre değiştirilemedi',
 
-    // editor header
     'editor.home': 'Ana Sayfa',
     'editor.titlePlaceholder': 'Adsız Pen',
     'editor.titleAria': 'Pen başlığı',
@@ -138,8 +132,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'editor.status.likeFailed': 'Beğenilemedi',
     'editor.status.saveFirst': 'Önce pen’i kaydet',
     'editor.status.linkCopied': 'Bağlantı kopyalandı',
-    'editor.status.privateLinkCopied':
-      'Özel pen — sadece sen açabilirsin. Bağlantı kopyalandı',
+    'editor.status.privateLinkCopied': 'Özel pen — sadece sen açabilirsin. Bağlantı kopyalandı',
     'editor.status.sharePrompt': 'Paylaşım bağlantısı:',
     'editor.status.madePublic': 'Herkese açık yapıldı',
     'editor.status.madePrivate': 'Gizli yapıldı',
@@ -148,7 +141,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'editor.status.formatted': 'Biçimlendirildi',
     'editor.status.formatFailed': 'Biçimlendirilemedi',
 
-    // pen view
     'penView.notFound': 'Pen bulunamadı',
     'penView.edit': 'Düzenle',
     'penView.embedCopied': 'Embed kodu kopyalandı',
@@ -165,7 +157,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'penView.likeFailed': 'Beğenilemedi',
     'penView.forkFailed': 'Fork oluşturulamadı',
 
-    // my pens
     'myPens.title': 'Pen’lerim',
     'myPens.new': 'Yeni Pen',
     'myPens.loadFailed': 'Pen’ler yüklenemedi',
@@ -177,23 +168,19 @@ export const translations: Record<Lang, Record<string, string>> = {
     'myPens.private': 'Gizli',
     'myPens.deleteAria': 'Pen’i sil',
 
-    // explore
     'explore.title': 'Keşfet',
     'explore.recent': 'Yeni',
     'explore.popular': 'Popüler',
     'explore.loadFailed': 'Pen’ler yüklenemedi',
     'explore.empty': 'Henüz herkese açık pen yok. İlk paylaşan sen ol!',
 
-    // profile
     'profile.notFound': 'Profil bulunamadı',
     'profile.publicPens': '{count} herkese açık pen',
     'profile.empty': 'Bu kullanıcının henüz herkese açık pen’i yok.',
 
-    // pen settings + resource list
     'penSettings.title': 'Pen Ayarları',
     'res.scripts.label': 'Harici Scriptler',
-    'res.scripts.desc':
-      "Bu URL'ler önizlemeye, JS kodun çalışmadan önce sırayla <script> olarak eklenir.",
+    'res.scripts.desc': "Bu URL'ler önizlemeye, JS kodun çalışmadan önce sırayla <script> olarak eklenir.",
     'res.scripts.empty': 'Henüz script eklenmedi.',
     'res.styles.label': "Harici Stylesheet'ler",
     'res.styles.desc':
@@ -204,31 +191,24 @@ export const translations: Record<Lang, Record<string, string>> = {
     'res.addManually': 'Elle ekle',
     'res.removeAria': 'Kaldır',
 
-    // preview
     'preview.clearConsole': 'Konsolu temizle',
     'preview.minimize': 'Küçült',
     'preview.maximize': 'Tam alan',
-    'preview.consoleEmpty':
-      'Konsol çıktısı burada görünür. Aşağıdan komut çalıştırabilirsin.',
+    'preview.consoleEmpty': 'Konsol çıktısı burada görünür. Aşağıdan komut çalıştırabilirsin.',
     'preview.commandPlaceholder': 'JS komutu çalıştır...',
 
-    // not found
     'notFound.text': 'Sayfa bulunamadı.',
     'notFound.back': 'Ana sayfaya dön',
 
-    // embed
     'embed.notFound': 'Pen bulunamadı',
 
-    // pen card
     'penCard.anon': 'anonim',
   },
 
   en: {
-    // common
     'common.loading': 'Loading...',
     'common.close': 'Close',
 
-    // nav / header
     'nav.editor': 'Editor',
     'nav.explore': 'Explore',
     'nav.myPens': 'My Pens',
@@ -237,7 +217,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'nav.login': 'Log in',
     'nav.register': 'Sign up',
 
-    // home / landing
     'home.badge': 'A live code editor in your browser',
     'home.subtitle':
       'Write HTML, CSS and JavaScript, preview instantly, speed up with preprocessors and share your work in one click. No setup — just code.',
@@ -247,36 +226,28 @@ export const translations: Record<Lang, Record<string, string>> = {
     'home.features.heading': 'What can you do?',
     'home.features.sub': 'Go from idea to working prototype in seconds.',
     'home.f.live.title': 'Live preview',
-    'home.f.live.desc':
-      'See the result instantly in the side panel as you write HTML, CSS and JS. No need to save.',
+    'home.f.live.desc': 'See the result instantly in the side panel as you write HTML, CSS and JS. No need to save.',
     'home.f.pre.title': 'Preprocessor support',
-    'home.f.pre.desc':
-      'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX and more, out of the box.',
+    'home.f.pre.desc': 'Pug, Markdown, Sass, Less, Stylus, TypeScript, Babel/JSX and more, out of the box.',
     'home.f.res.title': 'External resources',
-    'home.f.res.desc':
-      'Add any CDN script or stylesheet; work with React, Tailwind or any library.',
+    'home.f.res.desc': 'Add any CDN script or stylesheet; work with React, Tailwind or any library.',
     'home.f.save.title': 'Save & continue',
-    'home.f.save.desc':
-      'Save your work, keep automatic drafts and pick up right where you left off.',
+    'home.f.save.desc': 'Save your work, keep automatic drafts and pick up right where you left off.',
     'home.f.share.title': 'Share & explore',
-    'home.f.share.desc':
-      'Publish your project publicly, explore what the community shares and get inspired.',
+    'home.f.share.desc': 'Publish your project publicly, explore what the community shares and get inspired.',
     'home.f.embed.title': 'Embed',
-    'home.f.embed.desc':
-      'Embed your work in a blog or doc with an iframe — it stays live and interactive.',
+    'home.f.embed.desc': 'Embed your work in a blog or doc with an iframe — it stays live and interactive.',
     'home.pre.heading': 'Supported languages & preprocessors',
     'home.pre.sub': "Write in the syntax you love; we'll handle the compilation.",
     'home.community.heading': 'Be part of a community',
-    'home.community.sub':
-      'Publish your work, explore other people’s projects and write better code together.',
+    'home.community.sub': 'Publish your work, explore other people’s projects and write better code together.',
     'home.community.discover': 'Explore public projects',
     'home.community.like': 'Like and collect your favorites',
     'home.community.comment': 'Give feedback by commenting',
     'home.community.fork': 'Fork and make your own version',
     'home.community.profile': 'Showcase your work on your profile',
     'home.community.card.title': 'Share your ideas with the world.',
-    'home.community.card.desc':
-      'Every public project shows up on the explore page and is reachable with a link.',
+    'home.community.card.desc': 'Every public project shows up on the explore page and is reachable with a link.',
     'home.community.card.cta': 'Go to the explore page',
     'home.cta2.heading': 'Start coding right now',
     'home.cta2.sub':
@@ -285,7 +256,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'home.cta2.register': 'Sign up for free',
     'home.footer.tagline': 'HTML · CSS · JavaScript playground',
 
-    // auth
     'auth.login.title': 'Log in',
     'auth.register.title': 'Sign up',
     'auth.email': 'Email',
@@ -301,8 +271,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     'auth.failed': 'Something went wrong',
     'auth.loginFailed': 'Login failed',
     'auth.registerFailed': 'Registration failed',
+    'auth.emailInvalid': 'Enter a valid email',
+    'auth.usernameRequired': 'Username is required',
+    'auth.usernameShort': 'Username must be at least 3 characters',
+    'auth.usernameLong': 'Username must be at most 64 characters',
+    'auth.usernameInvalid': 'Username may only contain letters, numbers, - and _',
+    'auth.passwordRequired': 'Password is required',
+    'auth.passwordShort': 'Password must be at least 8 characters',
+    'auth.passwordWeak': 'Password must include upper, lower case and a number',
 
-    // account
     'account.title': 'Account',
     'account.viewProfile': 'View your profile',
     'account.changePassword': 'Change password',
@@ -316,7 +293,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'account.updated': 'Your password has been updated',
     'account.changeFailed': "Couldn't change password",
 
-    // editor header
     'editor.home': 'Home',
     'editor.titlePlaceholder': 'Untitled Pen',
     'editor.titleAria': 'Pen title',
@@ -359,8 +335,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'editor.status.likeFailed': "Couldn't like",
     'editor.status.saveFirst': 'Save the pen first',
     'editor.status.linkCopied': 'Link copied',
-    'editor.status.privateLinkCopied':
-      'Private pen — only you can open it. Link copied',
+    'editor.status.privateLinkCopied': 'Private pen — only you can open it. Link copied',
     'editor.status.sharePrompt': 'Share link:',
     'editor.status.madePublic': 'Made public',
     'editor.status.madePrivate': 'Made private',
@@ -369,7 +344,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'editor.status.formatted': 'Formatted',
     'editor.status.formatFailed': "Couldn't format",
 
-    // pen view
     'penView.notFound': 'Pen not found',
     'penView.edit': 'Edit',
     'penView.embedCopied': 'Embed code copied',
@@ -386,7 +360,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'penView.likeFailed': "Couldn't like",
     'penView.forkFailed': "Couldn't create fork",
 
-    // my pens
     'myPens.title': 'My Pens',
     'myPens.new': 'New Pen',
     'myPens.loadFailed': "Couldn't load pens",
@@ -398,49 +371,39 @@ export const translations: Record<Lang, Record<string, string>> = {
     'myPens.private': 'Private',
     'myPens.deleteAria': 'Delete pen',
 
-    // explore
     'explore.title': 'Explore',
     'explore.recent': 'Recent',
     'explore.popular': 'Popular',
     'explore.loadFailed': "Couldn't load pens",
     'explore.empty': 'No public pens yet. Be the first to share!',
 
-    // profile
     'profile.notFound': 'Profile not found',
     'profile.publicPens': '{count} public pens',
     'profile.empty': 'This user has no public pens yet.',
 
-    // pen settings + resource list
     'penSettings.title': 'Pen Settings',
     'res.scripts.label': 'External scripts',
-    'res.scripts.desc':
-      'These URLs are added to the preview as <script> tags, in order, before your JS runs.',
+    'res.scripts.desc': 'These URLs are added to the preview as <script> tags, in order, before your JS runs.',
     'res.scripts.empty': 'No scripts added yet.',
     'res.styles.label': 'External stylesheets',
-    'res.styles.desc':
-      "These URLs are added to the preview's <head> as <link rel=stylesheet>, before your CSS.",
+    'res.styles.desc': "These URLs are added to the preview's <head> as <link rel=stylesheet>, before your CSS.",
     'res.styles.empty': 'No stylesheets added yet.',
     'res.searchPlaceholder': 'Search CDN (e.g. bootstrap, lodash)',
     'res.searchFailed': 'CDN search failed',
     'res.addManually': 'Add manually',
     'res.removeAria': 'Remove',
 
-    // preview
     'preview.clearConsole': 'Clear console',
     'preview.minimize': 'Minimize',
     'preview.maximize': 'Maximize',
-    'preview.consoleEmpty':
-      'Console output appears here. Run a command below.',
+    'preview.consoleEmpty': 'Console output appears here. Run a command below.',
     'preview.commandPlaceholder': 'Run a JS command...',
 
-    // not found
     'notFound.text': 'Page not found.',
     'notFound.back': 'Back to home',
 
-    // embed
     'embed.notFound': 'Pen not found',
 
-    // pen card
     'penCard.anon': 'anonymous',
   },
 }

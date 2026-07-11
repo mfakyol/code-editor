@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { buildErrorDoc } from '@/utils/buildErrorDoc'
 import { buildSrcDoc } from '@/utils/buildSrcDoc'
-import { compileAll } from '@/utils/compileCode'
+import compileService from '@/services/compile.service'
 import type { PenSettings } from '@/types/preprocessors'
 
 type Source = {
@@ -11,9 +11,6 @@ type Source = {
   settings: PenSettings
 } | null
 
-// Compiles a pen's source (running preprocessors through the server when
-// needed) and returns a ready-to-render iframe srcDoc. Used by the read-only
-// full and embed views.
 export function useCompiledDoc(source: Source): string {
   const [srcDoc, setSrcDoc] = useState('')
 
@@ -25,7 +22,7 @@ export function useCompiledDoc(source: Source): string {
 
     let active = true
     const { html, css, js, settings } = source
-    compileAll({ html, css, js }, settings).then((compiled) => {
+    compileService.compileAll({ html, css, js }, settings).then((compiled) => {
       if (!active) return
       setSrcDoc(
         compiled.errors.length > 0

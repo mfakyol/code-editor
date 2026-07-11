@@ -22,9 +22,7 @@ describe('buildSrcDoc', () => {
       externalStyles: ['https://cdn.test/lib.css'],
     })
     expect(doc).toContain('<script src="https://cdn.test/lib.js">')
-    expect(doc).toContain(
-      '<link rel="stylesheet" href="https://cdn.test/lib.css" />',
-    )
+    expect(doc).toContain('<link rel="stylesheet" href="https://cdn.test/lib.css" />')
   })
 
   it('ignores blank external resource entries', () => {

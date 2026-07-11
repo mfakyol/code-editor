@@ -1,10 +1,6 @@
 export type HtmlPreprocessor = 'none' | 'pug' | 'markdown' | 'haml'
 export type CssPreprocessor = 'none' | 'sass' | 'scss' | 'less' | 'stylus'
-export type JsPreprocessor =
-  | 'none'
-  | 'typescript'
-  | 'coffeescript'
-  | 'babel'
+export type JsPreprocessor = 'none' | 'typescript' | 'coffeescript' | 'babel'
 export type SettingsTab = 'html' | 'css' | 'javascript'
 
 export type PenSettings = {

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { buildErrorDoc } from '@/utils/buildErrorDoc'
 import { buildSrcDoc } from '@/utils/buildSrcDoc'
-import { compileAll } from '@/utils/compileCode'
-import { usePreviewRunner } from '@/contexts/PreviewRunnerContext'
+import compileService from '@/services/compile.service'
+import { usePreviewRunner } from '@/stores/preview-runner.store'
 import type { PenSettings } from '@/types/preprocessors'
 
 type PreviewSource = {
@@ -23,20 +23,11 @@ type RunOptions = {
   force?: boolean
 }
 
-function buildFingerprint(
-  source: { html: string; css: string; js: string },
-  settings: PenSettings,
-): string {
+function buildFingerprint(source: { html: string; css: string; js: string }, settings: PenSettings): string {
   return JSON.stringify({ ...source, settings })
 }
 
-export function usePreview({
-  html,
-  css,
-  js,
-  settings,
-  autoRun = true,
-}: PreviewSource) {
+export function usePreview({ html, css, js, settings, autoRun = true }: PreviewSource) {
   const { registerRunner } = usePreviewRunner()
   const [srcDoc, setSrcDoc] = useState('')
   const [logs, setLogs] = useState<ConsoleLog[]>([])
@@ -49,15 +40,9 @@ export function usePreview({
     logIdRef.current = 0
   }, [])
 
-  const pushLog = useCallback(
-    (level: ConsoleLog['level'], message: string) => {
-      setLogs((current) => [
-        ...current,
-        { id: logIdRef.current++, level, message },
-      ])
-    },
-    [],
-  )
+  const pushLog = useCallback((level: ConsoleLog['level'], message: string) => {
+    setLogs((current) => [...current, { id: logIdRef.current++, level, message }])
+  }, [])
 
   const run = useCallback(
     async (options?: RunOptions) => {
@@ -77,7 +62,7 @@ export function usePreview({
 
       lastFingerprintRef.current = fingerprint
 
-      const compiled = await compileAll({ html, css, js }, settings)
+      const compiled = await compileService.compileAll({ html, css, js }, settings)
       const nextSrcDoc =
         compiled.errors.length > 0
           ? buildErrorDoc(compiled.errors)
@@ -114,10 +99,7 @@ export function usePreview({
       const level = event.data.level as ConsoleLog['level']
       const message = String(event.data.message ?? '')
 
-      setLogs((current) => [
-        ...current,
-        { id: logIdRef.current++, level, message },
-      ])
+      setLogs((current) => [...current, { id: logIdRef.current++, level, message }])
     }
 
     window.addEventListener('message', handleMessage)

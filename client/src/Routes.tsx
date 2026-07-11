@@ -16,7 +16,7 @@ import NotFound from '@/pages/NotFound'
 function AppRoutes() {
   return (
     <Routes>
-      {/* Standalone, chrome-free embed for iframing on other sites. */}
+      {}
       <Route path="/embed/:id" element={<Embed />} />
 
       <Route element={<EditorLayout />}>

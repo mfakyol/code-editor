@@ -22,15 +22,11 @@ export function loadDraft(): Draft | null {
 export function saveDraft(draft: Draft): void {
   try {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  } catch {
-    // localStorage unavailable / quota exceeded — ignore.
-  }
+  } catch {}
 }
 
 export function clearDraft(): void {
   try {
     localStorage.removeItem(DRAFT_KEY)
-  } catch {
-    // ignore
-  }
+  } catch {}
 }
