@@ -27,7 +27,6 @@ function EditorPanel({
         <div className="flex items-center justify-between border-b border-neutral-800 bg-neutral-900 px-3 py-1.5">
           <span className={`text-xs font-semibold uppercase tracking-wide ${labelColor}`}>{label}</span>
           <button
-            type="button"
             onClick={onSettingsClick}
             className="text-neutral-500 hover:text-neutral-200"
             aria-label={`${label} settings`}

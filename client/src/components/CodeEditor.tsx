@@ -12,7 +12,7 @@ import { githubDark, githubLight } from '@uiw/codemirror-theme-github'
 import { abbreviationTracker } from '@emmetio/codemirror6-plugin'
 import type { Extension } from '@codemirror/state'
 import type { EditorMode } from '@/types/editor'
-import { useWorkspace, type EditorTheme } from '@/stores/workspace.store'
+import { useWorkspaceStore, type EditorTheme } from '@/stores/workspace.store'
 
 const themeMap: Record<EditorTheme, Extension> = {
   dracula,
@@ -42,7 +42,7 @@ const modeExtensions: Record<EditorMode, Extension> = {
 }
 
 function CodeEditor({ value, mode, onChange }: CodeEditorProps) {
-  const { fontSize, editorTheme } = useWorkspace()
+  const { fontSize, editorTheme } = useWorkspaceStore()
   const fontTheme = EditorView.theme({
     '&': { fontSize: `${fontSize}px` },
   })

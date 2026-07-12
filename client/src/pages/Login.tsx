@@ -13,7 +13,7 @@ function Login() {
   const [from] = useState(() => {
     const param = searchParams.get('from')
     if (param && param.startsWith('/') && !param.startsWith('//')) return param
-    return (location.state as { from?: string } | null)?.from ?? '/editor'
+    return (location.state as { from?: string } | null)?.from ?? '/pen'
   })
 
   useEffect(() => {

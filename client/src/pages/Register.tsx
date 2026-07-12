@@ -10,7 +10,7 @@ function Register() {
     <>
       <h1 className="mb-5 text-xl font-semibold">{t('auth.register.title')}</h1>
 
-      <AuthForm mode="register" onSuccess={() => navigate('/editor', { replace: true })} />
+      <AuthForm mode="register" onSuccess={() => navigate('/pen', { replace: true })} />
 
       <p className="mt-4 text-center text-sm text-neutral-400">
         {t('auth.haveAccount')}{' '}

@@ -1,7 +1,5 @@
 import { Outlet } from 'react-router-dom'
 
-// Centered card shell shared by all auth routes (login, register, and future
-// ones like forgot-password). Each page renders its own heading, form and footer.
 function AuthLayout() {
   return (
     <div className="flex h-full items-center justify-center px-4 py-8">

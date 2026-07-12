@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import MainLayout from '@/layouts/MainLayout'
 import EditorLayout from '@/layouts/EditorLayout'
 import AuthLayout from '@/layouts/AuthLayout'
+import ProtectedLayout from '@/layouts/ProtectedLayout'
 import Home from '@/pages/Home'
 import Editor from '@/pages/Editor'
 import Explore from '@/pages/Explore'
@@ -21,8 +22,7 @@ function AppRoutes() {
       <Route path="/embed/:id" element={<Embed />} />
 
       <Route element={<EditorLayout />}>
-        <Route path="/editor" element={<Editor />} />
-        <Route path="/pen/:id" element={<Editor />} />
+        <Route path="/pen/:id?" element={<Editor />} />
       </Route>
 
       <Route element={<MainLayout />}>
@@ -30,8 +30,10 @@ function AppRoutes() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/u/:username" element={<Profile />} />
         <Route path="/pen/:id/full" element={<PenView />} />
-        <Route path="/pens" element={<MyPens />} />
-        <Route path="/account" element={<Account />} />
+        <Route element={<ProtectedLayout />}>
+          <Route path="/pens" element={<MyPens />} />
+          <Route path="/account" element={<Account />} />
+        </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { IconPlus, IconTrash, IconCode, IconWorld, IconLock } from '@tabler/icons-react'
-import { useAuthStore } from '@/stores/auth.store'
 import { useI18n } from '@/stores/i18n.store'
 import penService, { type PenSummary } from '@/services/pen.service'
 import { PenListSkeleton } from '@/components/Skeleton'
@@ -11,8 +10,6 @@ function formatDate(iso: string): string {
 }
 
 function MyPens() {
-  const user = useAuthStore((s) => s.user)
-  const authLoading = useAuthStore((s) => s.loading)
   const { t } = useI18n()
   const [pens, setPens] = useState<PenSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -20,7 +17,6 @@ function MyPens() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!user) return
     let active = true
     setLoading(true)
     penService.list().then((res) => {
@@ -32,15 +28,7 @@ function MyPens() {
     return () => {
       active = false
     }
-  }, [user])
-
-  if (authLoading) {
-    return <div className="flex h-full items-center justify-center text-neutral-400">{t('common.loading')}</div>
-  }
-
-  if (!user) {
-    return <Navigate to="/login" state={{ from: '/pens' }} replace />
-  }
+  }, [])
 
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('myPens.confirmDelete'))) return
@@ -59,7 +47,7 @@ function MyPens() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t('myPens.title')}</h1>
         <Link
-          to="/editor"
+          to="/pen"
           className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium hover:bg-indigo-500"
         >
           <IconPlus className="h-4 w-4" stroke={2} />
@@ -74,7 +62,7 @@ function MyPens() {
       ) : pens.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-700 p-10 text-center">
           <p className="text-neutral-400">{t('myPens.empty')}</p>
-          <Link to="/editor" className="mt-3 inline-block text-indigo-400 hover:text-indigo-300">
+          <Link to="/pen" className="mt-3 inline-block text-indigo-400 hover:text-indigo-300">
             {t('myPens.createFirst')}
           </Link>
         </div>

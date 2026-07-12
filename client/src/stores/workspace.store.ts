@@ -66,7 +66,7 @@ function persist(key: string, value: string) {
   } catch {}
 }
 
-export const useWorkspace = create<WorkspaceState>((set, get) => ({
+export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   title: 'Untitled Pen',
   setTitle: (title) => set({ title }),
   penId: null,

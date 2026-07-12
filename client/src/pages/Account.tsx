@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth.store'
 import { useI18n } from '@/stores/i18n.store'
 import authService from '@/services/auth.service'
@@ -9,8 +9,7 @@ import Alert from '@/components/ui/Alert'
 import { changePasswordSchema, fieldErrors } from '@/schemas/auth.schema'
 
 function Account() {
-  const user = useAuthStore((s) => s.user)
-  const authLoading = useAuthStore((s) => s.loading)
+  const user = useAuthStore((s) => s.user)!
   const { t } = useI18n()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
@@ -18,14 +17,6 @@ function Account() {
     type: 'ok' | 'error'
     text: string
   } | null>(null)
-
-  if (authLoading) {
-    return <div className="flex h-full items-center justify-center text-neutral-400">{t('common.loading')}</div>
-  }
-
-  if (!user) {
-    return <Navigate to="/login" state={{ from: '/account' }} replace />
-  }
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()

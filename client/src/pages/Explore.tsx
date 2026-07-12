@@ -14,18 +14,13 @@ function Explore() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let active = true
     setLoading(true)
     setError(null)
     penService.publicList(sort).then((res) => {
-      if (!active) return
       if (res.success) setPens(res.data.pens)
       else setError(res.error.message)
       setLoading(false)
     })
-    return () => {
-      active = false
-    }
   }, [sort])
 
   return (
@@ -33,12 +28,13 @@ function Explore() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t('explore.title')}</h1>
         <div className="flex items-center rounded-md bg-neutral-800 p-0.5 text-sm">
-          {(['recent', 'popular'] as const).map((mode) => (
+          {(['recent', 'popular'] as SortMode[]).map((mode) => (
             <button
               key={mode}
               type="button"
               onClick={() => setSort(mode)}
-              className={`rounded px-3 py-1.5 ${
+              disabled={loading}
+              className={`rounded px-3 py-1.5 disabled:opacity-50 ${
                 sort === mode ? 'bg-neutral-700 text-neutral-100' : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >

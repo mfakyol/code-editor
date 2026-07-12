@@ -14,6 +14,8 @@ import {
   IconBrandHtml5,
   IconBrandCss3,
   IconBrandJavascript,
+  IconBrandGithub,
+  IconBrandLinkedin,
 } from '@tabler/icons-react'
 import { useAuthStore } from '@/stores/auth.store'
 import { useI18n } from '@/stores/i18n.store'
@@ -52,6 +54,10 @@ const preprocessors = [
   },
 ]
 
+const PORTFOLIO_URL = 'https://fatihakyol.com'
+const GITHUB_URL = 'https://github.com/mfakyol'
+const LINKEDIN_URL = 'https://www.linkedin.com/in/fatih-akyol-844701183/'
+
 const community = [
   { icon: IconWorld, text: 'home.community.discover' },
   { icon: IconHeart, text: 'home.community.like' },
@@ -66,7 +72,6 @@ function Home() {
 
   return (
     <div className="h-full overflow-y-auto bg-neutral-900 text-neutral-100">
-      {}
       <section className="relative overflow-hidden px-4 pt-16 pb-20 sm:px-6 sm:pt-24">
         <div
           aria-hidden
@@ -85,7 +90,7 @@ function Home() {
           <p className="mx-auto mt-4 max-w-2xl text-base text-neutral-400 sm:text-lg">{t('home.subtitle')}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/editor"
+              to="/pen"
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 sm:text-base"
             >
               {t('home.cta.start')}
@@ -99,7 +104,6 @@ function Home() {
             </Link>
           </div>
 
-          {}
           <div className="mx-auto mt-14 max-w-3xl overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 shadow-2xl shadow-black/40">
             <div className="flex items-center gap-1.5 border-b border-neutral-800 px-4 py-3">
               <span className="h-3 w-3 rounded-full bg-red-500/80" />
@@ -217,7 +221,7 @@ function Home() {
           <p className="mx-auto mt-3 max-w-xl text-sm text-neutral-400 sm:text-base">{t('home.cta2.sub')}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/editor"
+              to="/pen"
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 sm:text-base"
             >
               {t('home.cta2.open')}
@@ -241,7 +245,41 @@ function Home() {
             <IconCode className="h-5 w-5 text-indigo-400" stroke={2} />
             Code Editor
           </div>
-          <p className="text-xs text-neutral-500">{t('home.footer.tagline')}</p>
+          <p className="text-xs text-neutral-500">
+            {t('home.footer.tagline')} · Made by{' '}
+            <a href={PORTFOLIO_URL} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300">
+              fatih
+            </a>
+          </p>
+          <div className="flex items-center gap-3">
+            <a
+              href={PORTFOLIO_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Portfolio"
+              className="text-neutral-400 transition-colors hover:text-indigo-400"
+            >
+              <IconWorld className="h-5 w-5" stroke={1.75} />
+            </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              className="text-neutral-400 transition-colors hover:text-indigo-400"
+            >
+              <IconBrandGithub className="h-5 w-5" stroke={1.75} />
+            </a>
+            <a
+              href={LINKEDIN_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+              className="text-neutral-400 transition-colors hover:text-indigo-400"
+            >
+              <IconBrandLinkedin className="h-5 w-5" stroke={1.75} />
+            </a>
+          </div>
         </div>
       </footer>
     </div>

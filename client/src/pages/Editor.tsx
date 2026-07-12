@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import EditorPanel from '@/components/EditorPanel'
 import EditorTabs from '@/components/EditorTabs'
@@ -7,10 +7,11 @@ import PenSettingsModal from '@/components/PenSettingsModal'
 import Preview from '@/components/Preview'
 import ResizeHandle from '@/components/ResizeHandle'
 import { usePenSettings } from '@/stores/pen-settings.store'
-import { useWorkspace } from '@/stores/workspace.store'
+import { useWorkspaceStore } from '@/stores/workspace.store'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { usePreview } from '@/hooks/usePreview'
 import penService from '@/services/pen.service'
+import { notify } from '@/stores/notification.store'
 import { formatCode } from '@/utils/formatCode'
 import { loadDraft, saveDraft } from '@/utils/draft'
 import { getEditorMode, getPanelLabel, type SettingsTab } from '@/types/preprocessors'
@@ -52,8 +53,9 @@ function EditorContent() {
     viewMode,
     savedTick,
     autoRun,
-  } = useWorkspace()
+  } = useWorkspaceStore()
   const { id } = useParams()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<SettingsTab>('html')
   const [html, setHtml] = useState(defaultHtml)
   const [css, setCss] = useState(defaultCss)
@@ -152,7 +154,12 @@ function EditorContent() {
 
     let active = true
     penService.get(id).then((res) => {
-      if (!active || !res.success) return
+      if (!active) return
+      if (!res.success) {
+        notify.error(res.error.message)
+        navigate('/pen', { replace: true })
+        return
+      }
       const { pen, isOwner, likeCount, commentCount, likedByMe } = res.data
       setHtml(pen.html)
       setCss(pen.css)
@@ -174,7 +181,7 @@ function EditorContent() {
     return () => {
       active = false
     }
-  }, [id, setHtml, setCss, setJs, updateSettings, setTitle, setPenId, setIsPublic, setIsOwner, setSocial])
+  }, [id, navigate, setHtml, setCss, setJs, updateSettings, setTitle, setPenId, setIsPublic, setIsOwner, setSocial])
 
   const panelProps = {
     html: {
