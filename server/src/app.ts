@@ -1,4 +1,5 @@
 import express from 'express'
+import helmet from 'helmet'
 import cors from 'cors'
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
@@ -9,6 +10,12 @@ import { env } from './config/env'
 
 const app = express()
 
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    hsts: env.isDev ? false : undefined,
+  }),
+)
 app.use(cors({ origin: env.corsOrigin, credentials: true }))
 app.use(express.json({ limit: '1mb' }))
 
