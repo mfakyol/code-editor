@@ -125,7 +125,7 @@ export async function forkPen(req: Request, res: Response, next: NextFunction): 
 
     const fork = await Pen.create({
       owner: req.user!.id,
-      title: `${source.title} (fork)`,
+      title: source.title.endsWith('(fork)') ? source.title : `${source.title} (fork)`,
       isPublic: false,
       html: source.html,
       css: source.css,
