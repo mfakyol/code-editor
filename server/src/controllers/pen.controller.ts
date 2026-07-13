@@ -1,59 +1,30 @@
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
+import type { z } from 'zod'
 import { Pen } from '../models/Pen'
 import { Like } from '../models/Like'
 import { Comment } from '../models/Comment'
 import { AppError } from '../errors/AppError'
+import type { penSchema } from '../schemas/pen.schema'
 
-type PenInput = {
-  title?: unknown
-  isPublic?: unknown
-  html?: unknown
-  css?: unknown
-  js?: unknown
-  settings?: {
-    htmlPreprocessor?: unknown
-    cssPreprocessor?: unknown
-    jsPreprocessor?: unknown
-    externalScripts?: unknown
-    externalStyles?: unknown
+type PenData = z.infer<typeof penSchema>
+
+async function loadOwnedPen(req: Request) {
+  const id = String(req.params.id)
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
   }
-}
-
-function asStringArray(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value.filter((x): x is string => typeof x === 'string')
-    : []
-}
-
-function asString(value: unknown, fallback = ''): string {
-  return typeof value === 'string' ? value : fallback
-}
-
-function normalizeBody(body: PenInput) {
-  const s = body.settings ?? {}
-  return {
-    title: asString(body.title, 'Untitled Pen').trim() || 'Untitled Pen',
-    isPublic: body.isPublic === true,
-    html: asString(body.html),
-    css: asString(body.css),
-    js: asString(body.js),
-    settings: {
-      htmlPreprocessor: asString(s.htmlPreprocessor, 'none'),
-      cssPreprocessor: asString(s.cssPreprocessor, 'none'),
-      jsPreprocessor: asString(s.jsPreprocessor, 'none'),
-      externalScripts: asStringArray(s.externalScripts),
-      externalStyles: asStringArray(s.externalStyles),
-    },
+  const pen = await Pen.findById(id)
+  if (!pen) {
+    throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
   }
+  if (String(pen.owner) !== req.user!.id) {
+    throw new AppError(403, 'Not your pen', 'FORBIDDEN')
+  }
+  return pen
 }
 
-// List the current user's pens (newest first, lightweight fields).
-export async function listPens(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function listPens(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const pens = await Pen.find({ owner: req.user!.id })
       .sort({ updatedAt: -1 })
@@ -65,14 +36,7 @@ export async function listPens(
   }
 }
 
-// Public explore gallery: every public pen with its owner + like count.
-// ?sort=popular orders by likes, otherwise newest first. Includes source so
-// the gallery can render live thumbnail previews.
-export async function listPublicPens(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function listPublicPens(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const limit = Math.min(Number(req.query.limit) || 48, 100)
     const popular = req.query.sort === 'popular'
@@ -118,11 +82,7 @@ export async function listPublicPens(
   }
 }
 
-export async function getPen(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function getPen(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
       throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
@@ -140,9 +100,7 @@ export async function getPen(
     const [likeCount, commentCount, likedByMe] = await Promise.all([
       Like.countDocuments({ pen: penId }),
       Comment.countDocuments({ pen: penId }),
-      req.user
-        ? Like.exists({ pen: penId, user: req.user.id }).then(Boolean)
-        : Promise.resolve(false),
+      req.user ? Like.exists({ pen: penId, user: req.user.id }).then(Boolean) : Promise.resolve(false),
     ])
 
     res.json({ pen, isOwner, likeCount, commentCount, likedByMe })
@@ -151,12 +109,7 @@ export async function getPen(
   }
 }
 
-// Create a copy of a pen (the source must be public or owned by the user).
-export async function forkPen(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function forkPen(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!Types.ObjectId.isValid(String(req.params.id))) {
       throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
@@ -185,13 +138,9 @@ export async function forkPen(
   }
 }
 
-export async function createPen(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function createPen(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const data = normalizeBody(req.body as PenInput)
+    const data = req.body as PenData
     const pen = await Pen.create({ ...data, owner: req.user!.id })
     res.status(201).json({ pen })
   } catch (error) {
@@ -199,25 +148,10 @@ export async function createPen(
   }
 }
 
-export async function updatePen(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function updatePen(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    if (!Types.ObjectId.isValid(String(req.params.id))) {
-      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
-    }
-    const pen = await Pen.findById(String(req.params.id))
-    if (!pen) {
-      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
-    }
-    if (String(pen.owner) !== req.user!.id) {
-      throw new AppError(403, 'Not your pen', 'FORBIDDEN')
-    }
-
-    const data = normalizeBody(req.body as PenInput)
-    pen.set(data)
+    const pen = await loadOwnedPen(req)
+    pen.set(req.body as PenData)
     await pen.save()
     res.json({ pen })
   } catch (error) {
@@ -225,22 +159,9 @@ export async function updatePen(
   }
 }
 
-export async function deletePen(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function deletePen(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    if (!Types.ObjectId.isValid(String(req.params.id))) {
-      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
-    }
-    const pen = await Pen.findById(String(req.params.id))
-    if (!pen) {
-      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
-    }
-    if (String(pen.owner) !== req.user!.id) {
-      throw new AppError(403, 'Not your pen', 'FORBIDDEN')
-    }
+    const pen = await loadOwnedPen(req)
     await pen.deleteOne()
     res.json({ ok: true })
   } catch (error) {
@@ -248,26 +169,10 @@ export async function deletePen(
   }
 }
 
-// Persist only a pen's visibility. Kept separate from updatePen so the editor
-// can flip public/private immediately (keeping share links truthful) without
-// having to save the whole document.
-export async function setVisibility(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function setVisibility(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    if (!Types.ObjectId.isValid(String(req.params.id))) {
-      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
-    }
-    const pen = await Pen.findById(String(req.params.id))
-    if (!pen) {
-      throw new AppError(404, 'Pen not found', 'PEN_NOT_FOUND')
-    }
-    if (String(pen.owner) !== req.user!.id) {
-      throw new AppError(403, 'Not your pen', 'FORBIDDEN')
-    }
-    pen.isPublic = (req.body as { isPublic?: unknown })?.isPublic === true
+    const pen = await loadOwnedPen(req)
+    pen.isPublic = (req.body as { isPublic: boolean }).isPublic
     await pen.save()
     res.json({ isPublic: pen.isPublic })
   } catch (error) {

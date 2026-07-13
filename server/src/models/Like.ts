@@ -8,7 +8,6 @@ const likeSchema = new Schema(
   { timestamps: true },
 )
 
-// A user can like a given pen at most once.
 likeSchema.index({ pen: 1, user: 1 }, { unique: true })
 
 export type LikeDoc = InferSchemaType<typeof likeSchema>

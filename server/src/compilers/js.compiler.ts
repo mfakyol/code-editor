@@ -14,8 +14,6 @@ export function compileJs(code: string, preprocessor: JsPreprocessor): string {
         },
       }).outputText
     case 'babel':
-      // JSX → React.createElement (classic runtime); React must be added as
-      // an external script by the user.
       try {
         return (
           transformSync(code, {
@@ -26,7 +24,6 @@ export function compileJs(code: string, preprocessor: JsPreprocessor): string {
           })?.code ?? code
         )
       } catch (error) {
-        // Babel prefixes messages with the absolute file path — strip it.
         const message =
           error instanceof Error ? error.message : String(error)
         throw new Error(message.replace(/^.*pen\.jsx:\s*/, ''))
@@ -35,8 +32,6 @@ export function compileJs(code: string, preprocessor: JsPreprocessor): string {
       try {
         return coffee.compile(code, { bare: true })
       } catch (error) {
-        // CoffeeScript SyntaxError.toString() yields a code frame
-        // (line:col, source line, caret) that .message alone omits.
         throw new Error(String(error))
       }
     case 'none':

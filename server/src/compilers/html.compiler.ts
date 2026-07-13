@@ -4,16 +4,30 @@ import { marked } from 'marked'
 import haml from 'haml'
 import type { HtmlPreprocessor } from '../types/preprocessors'
 
-// Pug templates can contain arbitrary JS that runs at render time. Calling
-// the compiled function directly would execute it with full Node privileges
-// (process/require → RCE). Instead we render the template inside a locked-down
-// vm context with no Node globals and a hard timeout.
+const RENDER_TIMEOUT_MS = 2000
+
 function renderPugSafely(code: string): string {
   const clientCode = pug.compileClient(code, { compileDebug: false })
   const sandbox = Object.create(null) as { __out?: string }
   vm.runInNewContext(`${clientCode}\nthis.__out = template({});`, sandbox, {
-    timeout: 2000,
+    timeout: RENDER_TIMEOUT_MS,
   })
+  return sandbox.__out ?? ''
+}
+
+haml('')
+
+const HAML_RUNTIME = `
+function html_escape(text) {
+  return (text + '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+var _o; with ({}) { eval('_o=' + __js); } this.__out = _o;
+`
+
+function renderHamlSafely(code: string): string {
+  const sandbox = Object.create(null) as { __js: string; __out?: string }
+  sandbox.__js = haml.compile(code)
+  vm.runInNewContext(HAML_RUNTIME, sandbox, { timeout: RENDER_TIMEOUT_MS })
   return sandbox.__out ?? ''
 }
 
@@ -27,7 +41,7 @@ export async function compileHtml(
     case 'markdown':
       return marked.parse(code) as string
     case 'haml':
-      return haml.render(code)
+      return renderHamlSafely(code)
     case 'none':
     default:
       return code

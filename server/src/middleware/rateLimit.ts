@@ -10,13 +10,9 @@ type Bucket = {
   resetAt: number
 }
 
-// Minimal in-memory fixed-window rate limiter. Keyed by client IP. Good enough
-// to stop a single client from hammering the (CPU-heavy) compile endpoint;
-// swap for a Redis-backed limiter if the server is ever horizontally scaled.
 export function rateLimit({ windowMs, max }: Options) {
   const buckets = new Map<string, Bucket>()
 
-  // Periodically drop expired buckets so the map cannot grow unbounded.
   const sweep = setInterval(() => {
     const now = Date.now()
     for (const [key, bucket] of buckets) {

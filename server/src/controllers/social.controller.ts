@@ -68,14 +68,7 @@ export async function addComment(req: Request, res: Response, next: NextFunction
   try {
     await loadAccessiblePen(req)
 
-    const body = String((req.body as { body?: unknown })?.body ?? '').trim()
-    if (!body) {
-      throw new AppError(400, 'Comment cannot be empty', 'COMMENT_EMPTY')
-    }
-    if (body.length > 2000) {
-      throw new AppError(400, 'Comment is too long (max 2000)', 'COMMENT_TOO_LONG')
-    }
-
+    const { body } = req.body as { body: string }
     const created = await Comment.create({
       pen: String(req.params.id),
       user: req.user!.id,

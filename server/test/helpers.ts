@@ -19,7 +19,7 @@ export async function registerAgent(
   const creds = {
     email: overrides.email ?? `user${unique}@test.com`,
     username: overrides.username ?? `tester${unique}`,
-    password: overrides.password ?? 'secret123',
+    password: overrides.password ?? 'Secret123',
   }
   const res = await agent.post('/api/auth/register').send(creds)
   return { agent, creds, res }

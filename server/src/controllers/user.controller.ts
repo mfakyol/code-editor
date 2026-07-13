@@ -4,8 +4,6 @@ import { User } from '../models/User'
 import { Pen } from '../models/Pen'
 import { AppError } from '../errors/AppError'
 
-// Public profile: a user's display name plus their public pens (with like
-// counts), newest first. Private pens are never exposed here.
 export async function getUserProfile(
   req: Request,
   res: Response,

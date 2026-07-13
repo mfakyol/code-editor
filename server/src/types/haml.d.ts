@@ -1,16 +1,14 @@
 declare module 'haml' {
-  export function render(
-    code: string,
-    options?: Record<string, unknown>,
-  ): string
-  export function compile(
-    code: string,
-    options?: Record<string, unknown>,
-  ): (locals?: Record<string, unknown>) => string
-
-  const _default: {
-    render: typeof render
-    compile: typeof compile
+  interface Haml {
+    (code: string, config?: unknown): string
+    render(code: string, options?: Record<string, unknown>): string
+    compile(code: string, options?: Record<string, unknown>): string
+    html_escape(value: unknown): string
   }
-  export default _default
+
+  const haml: Haml
+  export default haml
+  export const render: Haml['render']
+  export const compile: Haml['compile']
+  export const html_escape: Haml['html_escape']
 }

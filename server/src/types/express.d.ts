@@ -1,4 +1,3 @@
-// Shape of the authenticated user attached to req.user by Passport.
 declare global {
   namespace Express {
     interface User {

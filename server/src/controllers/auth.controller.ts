@@ -1,7 +1,9 @@
 import type { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
+import type { z } from 'zod'
 import { User, hashPassword, verifyPassword } from '../models/User'
 import { AppError } from '../errors/AppError'
+import type { registerSchema, changePasswordSchema } from '../schemas/auth.schema'
 
 type PublicUser = { id: string; email: string; username: string }
 
@@ -11,25 +13,7 @@ function toPublicUser(user: Express.User): PublicUser {
 
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const email = String(req.body?.email ?? '')
-      .toLowerCase()
-      .trim()
-    const username = String(req.body?.username ?? '').trim()
-    const password = String(req.body?.password ?? '')
-
-    const errors: string[] = []
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      errors.push('A valid email is required')
-    }
-    if (username.length < 2) {
-      errors.push('Username must be at least 2 characters')
-    }
-    if (password.length < 6) {
-      errors.push('Password must be at least 6 characters')
-    }
-    if (errors.length > 0) {
-      throw new AppError(400, 'Invalid input', 'VALIDATION', errors)
-    }
+    const { email, username, password } = req.body as z.infer<typeof registerSchema>
 
     const existing = await User.findOne({ email })
     if (existing) {
@@ -102,12 +86,7 @@ export function me(req: Request, res: Response): void {
 
 export async function changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const currentPassword = String(req.body?.currentPassword ?? '')
-    const newPassword = String(req.body?.newPassword ?? '')
-
-    if (newPassword.length < 6) {
-      throw new AppError(400, 'New password must be at least 6 characters', 'VALIDATION')
-    }
+    const { currentPassword, newPassword } = req.body as z.infer<typeof changePasswordSchema>
 
     const user = await User.findById(req.user!.id)
     if (!user) {

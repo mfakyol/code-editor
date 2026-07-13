@@ -43,7 +43,7 @@ describe('POST /api/auth/register', () => {
     const res = await request(app).post('/api/auth/register').send({
       email: 'dupe@test.com',
       username: 'other',
-      password: 'secret123',
+      password: 'Secret123',
     })
     expect(res.status).toBe(409)
   })
@@ -53,7 +53,7 @@ describe('POST /api/auth/register', () => {
     const res = await request(app).post('/api/auth/register').send({
       email: 'u2@test.com',
       username: 'samename',
-      password: 'secret123',
+      password: 'Secret123',
     })
     expect(res.status).toBe(409)
   })
@@ -61,16 +61,16 @@ describe('POST /api/auth/register', () => {
 
 describe('POST /api/auth/login', () => {
   it('logs in with correct credentials', async () => {
-    await registerAgent(app, { email: 'log@test.com', password: 'secret123' })
+    await registerAgent(app, { email: 'log@test.com', password: 'Secret123' })
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'log@test.com', password: 'secret123' })
+      .send({ email: 'log@test.com', password: 'Secret123' })
     expect(res.status).toBe(200)
     expect(res.body.user.email).toBe('log@test.com')
   })
 
   it('rejects a wrong password with 401', async () => {
-    await registerAgent(app, { email: 'wrong@test.com', password: 'secret123' })
+    await registerAgent(app, { email: 'wrong@test.com', password: 'Secret123' })
     const res = await request(app)
       .post('/api/auth/login')
       .send({ email: 'wrong@test.com', password: 'nope' })
@@ -105,44 +105,44 @@ describe('POST /api/auth/change-password', () => {
   it('requires authentication', async () => {
     const res = await request(app)
       .post('/api/auth/change-password')
-      .send({ currentPassword: 'secret123', newPassword: 'newpass123' })
+      .send({ currentPassword: 'Secret123', newPassword: 'newpass123' })
     expect(res.status).toBe(401)
   })
 
   it('changes the password with the correct current password', async () => {
     const { agent, creds } = await registerAgent(app, {
       email: 'pw@test.com',
-      password: 'secret123',
+      password: 'Secret123',
     })
     const res = await agent
       .post('/api/auth/change-password')
-      .send({ currentPassword: 'secret123', newPassword: 'brandnew123' })
+      .send({ currentPassword: 'Secret123', newPassword: 'Brandnew123' })
     expect(res.status).toBe(200)
 
     // Old password no longer works, new one does.
     await request(app)
       .post('/api/auth/login')
-      .send({ email: creds.email, password: 'secret123' })
+      .send({ email: creds.email, password: 'Secret123' })
       .expect(401)
     await request(app)
       .post('/api/auth/login')
-      .send({ email: creds.email, password: 'brandnew123' })
+      .send({ email: creds.email, password: 'Brandnew123' })
       .expect(200)
   })
 
   it('rejects a wrong current password', async () => {
-    const { agent } = await registerAgent(app, { password: 'secret123' })
+    const { agent } = await registerAgent(app, { password: 'Secret123' })
     const res = await agent
       .post('/api/auth/change-password')
-      .send({ currentPassword: 'wrong', newPassword: 'brandnew123' })
+      .send({ currentPassword: 'wrong', newPassword: 'Brandnew123' })
     expect(res.status).toBe(401)
   })
 
   it('rejects a too-short new password', async () => {
-    const { agent } = await registerAgent(app, { password: 'secret123' })
+    const { agent } = await registerAgent(app, { password: 'Secret123' })
     const res = await agent
       .post('/api/auth/change-password')
-      .send({ currentPassword: 'secret123', newPassword: '123' })
+      .send({ currentPassword: 'Secret123', newPassword: '123' })
     expect(res.status).toBe(400)
   })
 })
