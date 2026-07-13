@@ -1,17 +1,9 @@
-import { useRef, useState, type SubmitEvent } from 'react'
+import { useEffect, useRef, useState, type SubmitEvent } from 'react'
 import { IconEye, IconTerminal2, IconMaximize, IconMinimize, IconTrash, IconChevronRight } from '@tabler/icons-react'
-import type { ConsoleLog } from '@/hooks/usePreview'
 import { useI18n } from '@/stores/i18n.store'
+import { usePreviewStore, type ConsoleLog } from '@/stores/preview.store'
 
 type PreviewTab = 'result' | 'console'
-
-type PreviewProps = {
-  srcDoc: string
-  logs: ConsoleLog[]
-  reloadNonce: number
-  clearLogs: () => void
-  pushLog: (level: ConsoleLog['level'], message: string) => void
-}
 
 const logColors: Record<ConsoleLog['level'], string> = {
   log: 'text-neutral-300',
@@ -19,12 +11,31 @@ const logColors: Record<ConsoleLog['level'], string> = {
   error: 'text-red-400',
 }
 
-function Preview({ srcDoc, logs, reloadNonce, clearLogs, pushLog }: PreviewProps) {
+function Preview() {
   const { t } = useI18n()
+  const srcDoc = usePreviewStore((s) => s.srcDoc)
+  const logs = usePreviewStore((s) => s.logs)
+  const reloadNonce = usePreviewStore((s) => s.reloadNonce)
+  const clearLogs = usePreviewStore((s) => s.clearLogs)
+  const pushLog = usePreviewStore((s) => s.pushLog)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const [activeTab, setActiveTab] = useState<PreviewTab>('result')
   const [maximized, setMaximized] = useState(false)
   const [command, setCommand] = useState('')
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return
+      if (event.data?.type === 'preview-reset') {
+        clearLogs()
+        return
+      }
+      if (event.data?.type !== 'preview-console') return
+      pushLog(event.data.level as ConsoleLog['level'], String(event.data.message ?? ''))
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [pushLog, clearLogs])
 
   const toggleMaximized = () => setMaximized((value) => !value)
 

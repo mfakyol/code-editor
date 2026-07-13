@@ -1,16 +1,15 @@
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useEffectEvent, type RefObject } from 'react'
 
 export function useOutsideClick(ref: RefObject<HTMLElement | null>, onDismiss: () => void, enabled = true) {
-  const handlerRef = useRef(onDismiss)
-  handlerRef.current = onDismiss
+  const dismiss = useEffectEvent(onDismiss)
 
   useEffect(() => {
     if (!enabled) return
     const onPointerDown = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) handlerRef.current()
+      if (ref.current && !ref.current.contains(event.target as Node)) dismiss()
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') handlerRef.current()
+      if (event.key === 'Escape') dismiss()
     }
     window.addEventListener('mousedown', onPointerDown)
     window.addEventListener('keydown', onKeyDown)

@@ -1,18 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useEffectEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconGitFork, IconHeart, IconHeartFilled, IconLink, IconLock, IconWand, IconWorld } from '@tabler/icons-react'
 import ToolbarButton from '@/components/editor/ToolbarButton'
 import { useI18n } from '@/stores/i18n.store'
 import { useWorkspaceStore } from '@/stores/workspace.store'
 import { useAuthStore } from '@/stores/auth.store'
-import { useEditorStore } from '@/stores/editor.store'
 import { notify } from '@/stores/notification.store'
 import penService from '@/services/pen.service'
 import socialService from '@/services/social.service'
 
 const ICON = 'h-4 w-4 shrink-0'
 
-function EditorActions() {
+type EditorActionsProps = { openAuth: () => void }
+
+function EditorActions({ openAuth }: EditorActionsProps) {
   const { t } = useI18n()
   const navigate = useNavigate()
   const penId = useWorkspaceStore((s) => s.penId)
@@ -58,7 +59,11 @@ function EditorActions() {
     }
   }, [])
 
-  const doLike = useCallback(async () => {
+  const like = async () => {
+    if (!useAuthStore.getState().user) {
+      openAuth()
+      return
+    }
     const ws = useWorkspaceStore.getState()
     if (!ws.penId) return
     setLiking(true)
@@ -69,15 +74,7 @@ function EditorActions() {
     } else {
       notify.error(res.error.message)
     }
-  }, [])
-
-  const handleLike = useCallback(() => {
-    if (!useAuthStore.getState().user) {
-      useEditorStore.setState({ authMode: 'login', pendingAction: doLike })
-      return
-    }
-    void doLike()
-  }, [doLike])
+  }
 
   const handleCopyLink = useCallback(async () => {
     const ws = useWorkspaceStore.getState()
@@ -98,13 +95,15 @@ function EditorActions() {
     }
   }, [t])
 
-  const doFork = useCallback(async () => {
+  const fork = async () => {
+    if (!useAuthStore.getState().user) {
+      openAuth()
+      return
+    }
     const ws = useWorkspaceStore.getState()
-    const source = ws.getSource()
-    if (!source) return
     setForking(true)
     const forkTitle = `${ws.title} (fork)`
-    const res = await penService.create({ title: forkTitle, isPublic: false, ...source })
+    const res = await penService.create({ title: forkTitle, isPublic: false, ...ws.getSource() })
     setForking(false)
     if (!res.success) {
       notify.error(res.error.message)
@@ -116,24 +115,15 @@ function EditorActions() {
     ws.setTitle(forkTitle)
     ws.markSaved()
     navigate(`/pen/${res.data.pen._id}`)
-  }, [navigate, t])
+  }
 
-  const handleFork = useCallback(() => {
-    if (!useAuthStore.getState().user) {
-      useEditorStore.setState({ authMode: 'login', pendingAction: doFork })
-      return
-    }
-    void doFork()
-  }, [doFork])
-
-  const handleFormatRef = useRef(handleFormat)
-  handleFormatRef.current = handleFormat
+  const onFormatShortcut = useEffectEvent(handleFormat)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.shiftKey && event.altKey && event.key.toLowerCase() === 'f') {
         event.preventDefault()
-        void handleFormatRef.current()
+        onFormatShortcut()
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -173,7 +163,7 @@ function EditorActions() {
           menu
           variant={likedByMe ? 'like' : 'neutral'}
           icon={likedByMe ? <IconHeartFilled className={ICON} /> : <IconHeart className={ICON} stroke={1.75} />}
-          onClick={handleLike}
+          onClick={like}
           loading={liking}
           title={likedByMe ? t('editor.unlike') : t('editor.like')}
           aria-label={t('editor.like')}
@@ -200,7 +190,7 @@ function EditorActions() {
         <ToolbarButton
           menu
           icon={<IconGitFork className={ICON} stroke={1.75} />}
-          onClick={handleFork}
+          onClick={fork}
           loading={forking}
           title={t('editor.forkTitle')}
           aria-label={t('editor.fork')}

@@ -1,5 +1,7 @@
 import type { PenSettings } from '@/types/preprocessors'
 import { api } from '@/utils/api'
+import { buildErrorDoc } from '@/utils/buildErrorDoc'
+import { buildSrcDoc } from '@/utils/buildSrcDoc'
 
 export type CompileResult = {
   html: string
@@ -7,6 +9,8 @@ export type CompileResult = {
   js: string
   errors: string[]
 }
+
+export type CompileSource = { html: string; css: string; js: string; settings: PenSettings }
 
 function needsServerCompilation(settings: PenSettings): boolean {
   return (
@@ -29,6 +33,17 @@ async function compileAll(
   }
 
   return { ...source, errors: res.error.errors.length > 0 ? res.error.errors : [res.error.message] }
+}
+
+export async function compileToSrcDoc({ html, css, js, settings }: CompileSource): Promise<string> {
+  const compiled = await compileAll({ html, css, js }, settings)
+  if (compiled.errors.length > 0) {
+    return buildErrorDoc(compiled.errors)
+  }
+  return buildSrcDoc(compiled.html, compiled.css, compiled.js, {
+    externalScripts: settings.externalScripts,
+    externalStyles: settings.externalStyles,
+  })
 }
 
 const compileService = {

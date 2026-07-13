@@ -49,6 +49,8 @@ export function buildSrcDoc(html: string, css: string, js: string, options: Buil
     ${scriptTags}
     <script>
       (function () {
+        window.parent.postMessage({ type: 'preview-reset' }, '*')
+
         const send = (level, args) => {
           window.parent.postMessage({
             type: 'preview-console',

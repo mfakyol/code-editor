@@ -7,11 +7,12 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
 import { changePasswordSchema, fieldErrors } from '@/schemas/auth.schema'
+import type { TranslationKey } from '@/i18n/translations'
 
 function Account() {
   const user = useAuthStore((s) => s.user)!
   const { t } = useI18n()
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, TranslationKey>>({})
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{
     type: 'ok' | 'error'

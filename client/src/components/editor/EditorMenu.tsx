@@ -7,7 +7,9 @@ import { useI18n } from '@/stores/i18n.store'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { useOutsideClick } from '@/hooks/useOutsideClick'
 
-function EditorMenu() {
+type EditorMenuProps = { openAuth: () => void }
+
+function EditorMenu({ openAuth }: EditorMenuProps) {
   const { t } = useI18n()
   const label = t('editor.menu')
   const [open, setOpen] = useState(false)
@@ -20,7 +22,7 @@ function EditorMenu() {
     <>
       <EditorPreferences />
       <div className="h-px bg-neutral-800" />
-      <EditorActions />
+      <EditorActions openAuth={openAuth} />
     </>
   )
 

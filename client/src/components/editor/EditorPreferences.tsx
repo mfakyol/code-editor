@@ -1,15 +1,16 @@
 import { IconLayoutSidebar, IconLayoutNavbar, IconLayoutSidebarRight, type IconProps } from '@tabler/icons-react'
 import type { ComponentType } from 'react'
+import type { TranslationKey } from '@/i18n/translations'
 import Switch from '@/components/ui/Switch'
 import LanguageSelect from '@/components/LanguageSelect'
 import { useI18n } from '@/stores/i18n.store'
 import {
-  useWorkspaceStore,
+  usePreferences,
   type ViewMode,
   type EditorTheme,
   MIN_FONT_SIZE,
   MAX_FONT_SIZE,
-} from '@/stores/workspace.store'
+} from '@/stores/preferences.store'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 
 const themeOptions: { value: EditorTheme; label: string }[] = [
@@ -18,7 +19,7 @@ const themeOptions: { value: EditorTheme; label: string }[] = [
   { value: 'githubLight', label: 'GitHub Light' },
 ]
 
-const viewOptions: { mode: ViewMode; labelKey: string; Icon: ComponentType<IconProps> }[] = [
+const viewOptions: { mode: ViewMode; labelKey: TranslationKey; Icon: ComponentType<IconProps> }[] = [
   { mode: 'left', labelKey: 'editor.view.left', Icon: IconLayoutSidebar },
   { mode: 'top', labelKey: 'editor.view.top', Icon: IconLayoutNavbar },
   { mode: 'right', labelKey: 'editor.view.right', Icon: IconLayoutSidebarRight },
@@ -27,7 +28,7 @@ const viewOptions: { mode: ViewMode; labelKey: string; Icon: ComponentType<IconP
 function EditorPreferences() {
   const { t } = useI18n()
   const { fontSize, adjustFontSize, autoRun, setAutoRun, editorTheme, setEditorTheme, viewMode, setViewMode } =
-    useWorkspaceStore()
+    usePreferences()
   const isMobile = useIsMobile()
 
   return (

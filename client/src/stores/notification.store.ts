@@ -23,7 +23,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     const id = `n${++counter}`
     set((state) => ({ notifications: [...state.notifications, { id, type, message }] }))
     if (duration > 0) {
-      window.setTimeout(() => {
+      setTimeout(() => {
         set((state) => ({ notifications: state.notifications.filter((n) => n.id !== id) }))
       }, duration)
     }

@@ -31,7 +31,7 @@ const features = [
   },
   { icon: IconWorld, title: 'home.f.share.title', desc: 'home.f.share.desc' },
   { icon: IconCode, title: 'home.f.embed.title', desc: 'home.f.embed.desc' },
-]
+] as const
 
 const preprocessors = [
   {
@@ -64,7 +64,7 @@ const community = [
   { icon: IconMessageCircle, text: 'home.community.comment' },
   { icon: IconGitFork, text: 'home.community.fork' },
   { icon: IconUserCircle, text: 'home.community.profile' },
-]
+] as const
 
 function Home() {
   const user = useAuthStore((s) => s.user)

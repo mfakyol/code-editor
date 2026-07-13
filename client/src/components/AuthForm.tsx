@@ -5,6 +5,7 @@ import { useI18n } from '@/stores/i18n.store'
 import authService from '@/services/auth.service'
 import { useState, type SubmitEvent } from 'react'
 import { loginSchema, registerSchema, fieldErrors } from '@/schemas/auth.schema'
+import type { TranslationKey } from '@/i18n/translations'
 
 type AuthFormProps = {
   mode: 'login' | 'register'
@@ -14,7 +15,7 @@ type AuthFormProps = {
 function AuthForm({ mode, onSuccess }: AuthFormProps) {
   const { t } = useI18n()
   const isRegister = mode === 'register'
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, TranslationKey>>({})
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 

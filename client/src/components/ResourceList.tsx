@@ -53,7 +53,7 @@ function ResourceList({ label, description, placeholder, emptyText, items, onCha
         })
     }, 350)
     return () => window.clearTimeout(timeout)
-  }, [query])
+  }, [query, t])
 
   return (
     <div>

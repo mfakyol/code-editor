@@ -1,12 +1,12 @@
 import { create } from 'zustand'
-import { translations, type Lang } from '@/i18n/translations'
+import { translations, type Lang, type TranslationKey } from '@/i18n/translations'
 
 type Vars = Record<string, string | number>
 
 type I18nState = {
   lang: Lang
   setLang: (lang: Lang) => void
-  t: (key: string, vars?: Vars) => string
+  t: (key: TranslationKey, vars?: Vars) => string
 }
 
 const STORAGE_KEY = 'lang'

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { TranslationKey } from '@/i18n/translations'
 
 const strongPassword = z
   .string()
@@ -34,11 +35,11 @@ export const changePasswordSchema = z
     message: 'account.mismatch',
   })
 
-export function fieldErrors(error: z.ZodError): Record<string, string> {
-  const out: Record<string, string> = {}
+export function fieldErrors(error: z.ZodError): Record<string, TranslationKey> {
+  const out: Record<string, TranslationKey> = {}
   for (const issue of error.issues) {
     const key = String(issue.path[0] ?? '')
-    if (key && !(key in out)) out[key] = issue.message
+    if (key && !(key in out)) out[key] = issue.message as TranslationKey
   }
   return out
 }
