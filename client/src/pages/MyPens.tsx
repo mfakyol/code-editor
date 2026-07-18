@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { IconPlus, IconTrash, IconCode, IconWorld, IconLock } from '@tabler/icons-react'
 import { useI18n } from '@/stores/i18n.store'
-import penService, { type PenSummary } from '@/services/pen.service'
+import penService, { PAGE_SIZE, type PenSummary } from '@/services/pen.service'
 import { PenListSkeleton } from '@/components/Skeleton'
 
 function formatDate(iso: string): string {
@@ -13,22 +13,49 @@ function MyPens() {
   const { t } = useI18n()
   const [pens, setPens] = useState<PenSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Total pens fetched from the server, used as the next offset so client-side
+  // deletes don't shift pagination.
+  const fetchedRef = useRef(0)
 
   useEffect(() => {
     let active = true
     setLoading(true)
-    penService.list().then((res) => {
+    penService.list({ limit: PAGE_SIZE, offset: 0 }).then((res) => {
       if (!active) return
-      if (res.success) setPens(res.data.pens)
-      else setError(res.error.message)
+      if (res.success) {
+        setPens(res.data.pens)
+        fetchedRef.current = res.data.pens.length
+        setHasMore(res.data.pens.length === PAGE_SIZE)
+      } else {
+        setError(res.error.message)
+      }
       setLoading(false)
     })
     return () => {
       active = false
     }
   }, [])
+
+  const loadMore = async () => {
+    setLoadingMore(true)
+    const res = await penService.list({ limit: PAGE_SIZE, offset: fetchedRef.current })
+    setLoadingMore(false)
+    if (res.success) {
+      fetchedRef.current += res.data.pens.length
+      setPens((current) => {
+        const seen = new Set(current.map((pen) => pen._id))
+        return [...current, ...res.data.pens.filter((pen) => !seen.has(pen._id))]
+      })
+      setHasMore(res.data.pens.length === PAGE_SIZE)
+    } else {
+      setError(res.error.message)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('myPens.confirmDelete'))) return
@@ -107,6 +134,19 @@ function MyPens() {
             </li>
           ))}
         </ul>
+      )}
+
+      {!loading && hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="rounded-md border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-neutral-200 hover:border-neutral-600 disabled:opacity-50"
+          >
+            {loadingMore ? t('myPens.loadingMore') : t('myPens.loadMore')}
+          </button>
+        </div>
       )}
     </div>
   )

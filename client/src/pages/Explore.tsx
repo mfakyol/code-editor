@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import penService, { type PublicPen } from '@/services/pen.service'
+import penService, { PAGE_SIZE, type PublicPen } from '@/services/pen.service'
 import { GalleryGridSkeleton } from '@/components/Skeleton'
 import PenCard from '@/components/PenCard'
 import { useI18n } from '@/stores/i18n.store'
@@ -11,17 +11,40 @@ function Explore() {
   const [pens, setPens] = useState<PublicPen[]>([])
   const [sort, setSort] = useState<SortMode>('recent')
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let active = true
     setLoading(true)
     setError(null)
-    penService.publicList(sort).then((res) => {
-      if (res.success) setPens(res.data.pens)
-      else setError(res.error.message)
+    penService.publicList(sort, { limit: PAGE_SIZE, offset: 0 }).then((res) => {
+      if (!active) return
+      if (res.success) {
+        setPens(res.data.pens)
+        setHasMore(res.data.pens.length === PAGE_SIZE)
+      } else {
+        setError(res.error.message)
+      }
       setLoading(false)
     })
+    return () => {
+      active = false
+    }
   }, [sort])
+
+  const loadMore = async () => {
+    setLoadingMore(true)
+    const res = await penService.publicList(sort, { limit: PAGE_SIZE, offset: pens.length })
+    setLoadingMore(false)
+    if (res.success) {
+      setPens((current) => [...current, ...res.data.pens])
+      setHasMore(res.data.pens.length === PAGE_SIZE)
+    } else {
+      setError(res.error.message)
+    }
+  }
 
   return (
     <div className="mx-auto h-full w-full max-w-6xl overflow-auto px-4 py-8 sm:px-6">
@@ -53,11 +76,26 @@ function Explore() {
           {t('explore.empty')}
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {pens.map((pen) => (
-            <PenCard key={pen._id} pen={pen} />
-          ))}
-        </ul>
+        <>
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pens.map((pen) => (
+              <PenCard key={pen._id} pen={pen} />
+            ))}
+          </ul>
+
+          {hasMore && (
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="rounded-md border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-neutral-200 hover:border-neutral-600 disabled:opacity-50"
+              >
+                {loadingMore ? t('explore.loadingMore') : t('explore.loadMore')}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
