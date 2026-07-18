@@ -1,4 +1,6 @@
 import { Schema, model, Types, type InferSchemaType } from 'mongoose'
+import { Like } from './Like'
+import { Comment } from './Comment'
 
 const settingsSchema = new Schema(
   {
@@ -28,6 +30,11 @@ const penSchema = new Schema(
   },
   { timestamps: true },
 )
+
+penSchema.post('deleteOne', { document: true, query: false }, async function () {
+  const penId = this._id
+  await Promise.all([Like.deleteMany({ pen: penId }), Comment.deleteMany({ pen: penId })])
+})
 
 export type PenDoc = InferSchemaType<typeof penSchema>
 

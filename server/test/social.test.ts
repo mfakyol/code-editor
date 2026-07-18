@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import request from 'supertest'
 import type { Express } from 'express'
+import { Like } from '../src/models/Like'
+import { Comment } from '../src/models/Comment'
 import { getApp, registerAgent } from './helpers'
 
 let app: Express
@@ -123,5 +125,24 @@ describe('comments', () => {
       .post(`/api/pens/${body.pen._id}/comments`)
       .send({ body: 'sneaky' })
     expect(res.status).toBe(403)
+  })
+})
+
+describe('cascade delete', () => {
+  it('removes a pen’s likes and comments when the pen is deleted', async () => {
+    const { ownerAgent, id } = await publicPen()
+
+    const { agent: fan } = await registerAgent(app)
+    await fan.post(`/api/pens/${id}/like`)
+    await fan.post(`/api/pens/${id}/comments`).send({ body: 'great work' })
+
+    expect(await Like.countDocuments({ pen: id })).toBe(1)
+    expect(await Comment.countDocuments({ pen: id })).toBe(1)
+
+    const del = await ownerAgent.delete(`/api/pens/${id}`)
+    expect(del.status).toBe(200)
+
+    expect(await Like.countDocuments({ pen: id })).toBe(0)
+    expect(await Comment.countDocuments({ pen: id })).toBe(0)
   })
 })
