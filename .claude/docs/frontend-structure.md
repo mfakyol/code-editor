@@ -51,6 +51,15 @@ main.tsx         # app bootstrap (providers, router, root render)
 - Components `PascalCase.tsx`; hooks `useCamelCase.ts`; stores `x.store.ts`;
   services `x.service.ts`; utils `camelCase.ts`.
 
+## Imports
+
+- Use the path alias (e.g. `@/`) for **all** intra-`src` imports — including
+  same-directory siblings. Avoid relative `./` and `../` paths so imports don't
+  break when files move and stay grep-able. Configure the alias in both
+  `tsconfig.json` (`paths`) and the bundler (e.g. `vite.config` `resolve.alias`).
+  - ✅ `import Label from '@/components/ui/Label'`
+  - ❌ `import Label from './Label'`
+
 ## Frontend security defaults
 
 - **Never** `dangerouslySetInnerHTML` with user/remote data. Rely on React escaping.
