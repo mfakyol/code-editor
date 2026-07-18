@@ -1,4 +1,5 @@
 import express from 'express'
+import mongoose from 'mongoose'
 import helmet from 'helmet'
 import cors from 'cors'
 import session from 'express-session'
@@ -38,7 +39,14 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.get('/health', (_req, res) => res.json({ status: 'ok' }))
+app.get('/health', (_req, res) => {
+  const dbUp = mongoose.connection.readyState === 1
+  if (!dbUp) {
+    res.status(503).json({ status: 'error', db: 'down' })
+    return
+  }
+  res.json({ status: 'ok' })
+})
 app.use('/api', apiRouter)
 
 app.use(errorHandler)
