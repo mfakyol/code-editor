@@ -1,5 +1,5 @@
 import { api } from '@/utils/api'
-import type { PublicPen } from './pen.service'
+import type { PublicPen } from '@/services/pen.service'
 
 function profile(username: string) {
   return api.get<{ user: { username: string }; pens: PublicPen[] }>(`/users/${encodeURIComponent(username)}`)

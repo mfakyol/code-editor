@@ -1,6 +1,6 @@
 import { useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '@/utils/cn'
-import Label from './Label'
+import Label from '@/components/ui/Label'
 
 const baseClass =
   'w-full rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-indigo-500 disabled:cursor-not-allowed disabled:bg-neutral-900 disabled:text-neutral-500'
