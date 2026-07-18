@@ -89,6 +89,7 @@ export function buildSrcDoc(html: string, css: string, js: string, options: Buil
 
 
         window.addEventListener('message', (event) => {
+          if (event.source !== window.parent) return
           if (!event.data || event.data.type !== 'preview-eval') return
           try {
             const result = eval(event.data.code)
