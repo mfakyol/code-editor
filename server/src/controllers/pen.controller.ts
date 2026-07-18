@@ -24,11 +24,20 @@ async function loadOwnedPen(req: Request) {
   return pen
 }
 
+function paginationParams(req: Request, defaultLimit: number) {
+  const limit = Math.min(Math.max(Number(req.query.limit) || defaultLimit, 1), 100)
+  const offset = Math.max(Number(req.query.offset) || 0, 0)
+  return { limit, offset }
+}
+
 export async function listPens(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const { limit, offset } = paginationParams(req, 100)
     const pens = await Pen.find({ owner: req.user!.id })
       .sort({ updatedAt: -1 })
       .select('title isPublic updatedAt createdAt')
+      .skip(offset)
+      .limit(limit)
       .lean()
     res.json({ pens })
   } catch (error) {
@@ -38,7 +47,7 @@ export async function listPens(req: Request, res: Response, next: NextFunction):
 
 export async function listPublicPens(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const limit = Math.min(Number(req.query.limit) || 48, 100)
+    const { limit, offset } = paginationParams(req, 48)
     const popular = req.query.sort === 'popular'
 
     const pens = await Pen.aggregate([
@@ -73,6 +82,7 @@ export async function listPublicPens(req: Request, res: Response, next: NextFunc
         },
       },
       { $sort: popular ? { likeCount: -1, updatedAt: -1 } : { updatedAt: -1 } },
+      { $skip: offset },
       { $limit: limit },
     ])
 
