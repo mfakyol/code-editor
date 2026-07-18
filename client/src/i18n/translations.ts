@@ -203,6 +203,8 @@ const tr = {
   'res.addManually': 'Elle ekle',
   'res.removeAria': 'Kaldır',
 
+  'preview.result': 'Sonuç',
+  'preview.console': 'Konsol',
   'preview.clearConsole': 'Konsolu temizle',
   'preview.minimize': 'Küçült',
   'preview.maximize': 'Tam alan',
@@ -420,6 +422,8 @@ const en: Record<TranslationKey, string> = {
   'res.addManually': 'Add manually',
   'res.removeAria': 'Remove',
 
+  'preview.result': 'Result',
+  'preview.console': 'Console',
   'preview.clearConsole': 'Clear console',
   'preview.minimize': 'Minimize',
   'preview.maximize': 'Maximize',

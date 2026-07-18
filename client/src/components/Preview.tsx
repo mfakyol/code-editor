@@ -66,7 +66,7 @@ function Preview() {
             }`}
           >
             <IconEye className="h-3.5 w-3.5" stroke={2} />
-            Result
+            {t('preview.result')}
           </button>
           <button
             type="button"
@@ -76,7 +76,7 @@ function Preview() {
             }`}
           >
             <IconTerminal2 className="h-3.5 w-3.5" stroke={2} />
-            Console
+            {t('preview.console')}
             {logs.length > 0 && <span className="ml-1 text-neutral-400">({logs.length})</span>}
           </button>
         </div>

@@ -11,7 +11,7 @@ type CdnResponse = {
 export async function searchCdn(query: string): Promise<CdnLib[]> {
   const url = `https://api.cdnjs.com/libraries?search=${encodeURIComponent(query)}&limit=12&fields=latest,version`
   const res = await fetch(url)
-  if (!res.ok) throw new Error('CDN araması başarısız')
+  if (!res.ok) throw new Error('CDN search request failed')
   const data = (await res.json()) as CdnResponse
   return (data.results ?? [])
     .filter((r) => Boolean(r.latest))
