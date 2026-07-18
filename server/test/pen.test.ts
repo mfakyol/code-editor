@@ -188,4 +188,17 @@ describe('GET /api/pens/public', () => {
       likeCount: 0,
     })
   })
+
+  it('honours limit and offset for pagination', async () => {
+    const { agent } = await registerAgent(app)
+    for (let i = 0; i < 3; i++) {
+      await agent.post('/api/pens').send(penPayload({ title: `P${i}`, isPublic: true }))
+    }
+
+    const firstPage = await request(app).get('/api/pens/public?limit=2')
+    expect(firstPage.body.pens).toHaveLength(2)
+
+    const secondPage = await request(app).get('/api/pens/public?limit=2&offset=2')
+    expect(secondPage.body.pens).toHaveLength(1)
+  })
 })
