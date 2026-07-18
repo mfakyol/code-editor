@@ -12,6 +12,16 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleString()
 }
 
+// Escape a value for safe interpolation into a double-quoted HTML attribute,
+// so a crafted pen title can't inject markup into the copyable embed snippet.
+function escapeAttr(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
 function PenView() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -102,7 +112,8 @@ function PenView() {
   const handleEmbed = async () => {
     if (!id) return
     const url = `${window.location.origin}/embed/${id}`
-    const snippet = `<iframe src="${url}" style="width:100%;height:400px;border:0;" title="${pen?.title ?? 'Pen'}" loading="lazy"></iframe>`
+    const title = escapeAttr(pen?.title ?? 'Pen')
+    const snippet = `<iframe src="${url}" style="width:100%;height:400px;border:0;" title="${title}" loading="lazy"></iframe>`
     try {
       await navigator.clipboard.writeText(snippet)
       flashStatus(t('penView.embedCopied'))
