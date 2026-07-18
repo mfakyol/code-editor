@@ -22,7 +22,9 @@ class ErrorBoundary extends Component<Props, State> {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-neutral-900 p-6 text-center text-neutral-200">
         <h1 className="text-xl font-semibold">{t('common.somethingWrong')}</h1>
-        <p className="max-w-md text-sm break-words text-neutral-400">{this.state.error.message}</p>
+        {import.meta.env.DEV && (
+          <p className="max-w-md text-sm break-words text-neutral-400">{this.state.error.message}</p>
+        )}
         <button
           type="button"
           onClick={() => window.location.reload()}
