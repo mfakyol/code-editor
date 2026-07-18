@@ -202,3 +202,53 @@ describe('GET /api/pens/public', () => {
     expect(secondPage.body.pens).toHaveLength(1)
   })
 })
+
+describe('external resource validation', () => {
+  it('accepts http(s) external script/style URLs', async () => {
+    const { agent } = await registerAgent(app)
+    const res = await agent.post('/api/pens').send(
+      penPayload({
+        settings: {
+          htmlPreprocessor: 'none',
+          cssPreprocessor: 'none',
+          jsPreprocessor: 'none',
+          externalScripts: ['https://cdn.example.com/lib.js'],
+          externalStyles: ['https://cdn.example.com/lib.css'],
+        },
+      }),
+    )
+    expect(res.status).toBe(201)
+    expect(res.body.pen.settings.externalScripts).toEqual(['https://cdn.example.com/lib.js'])
+  })
+
+  it('drops empty entries but rejects non-http(s) URLs', async () => {
+    const { agent } = await registerAgent(app)
+
+    const ok = await agent.post('/api/pens').send(
+      penPayload({
+        settings: {
+          htmlPreprocessor: 'none',
+          cssPreprocessor: 'none',
+          jsPreprocessor: 'none',
+          externalScripts: ['   ', 'https://cdn.example.com/lib.js'],
+          externalStyles: [],
+        },
+      }),
+    )
+    expect(ok.status).toBe(201)
+    expect(ok.body.pen.settings.externalScripts).toEqual(['https://cdn.example.com/lib.js'])
+
+    const bad = await agent.post('/api/pens').send(
+      penPayload({
+        settings: {
+          htmlPreprocessor: 'none',
+          cssPreprocessor: 'none',
+          jsPreprocessor: 'none',
+          externalScripts: ['javascript:alert(1)'],
+          externalStyles: [],
+        },
+      }),
+    )
+    expect(bad.status).toBe(400)
+  })
+})
