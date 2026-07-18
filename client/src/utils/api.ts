@@ -38,8 +38,11 @@ client.interceptors.response.use(
       if (window.location.pathname !== '/login') {
         const from = encodeURIComponent(window.location.pathname + window.location.search)
         window.location.href = `/login?session=expired&from=${from}`
+        // Navigating away — never resolve so callers don't act on a stale page.
+        return new Promise<never>(() => {})
       }
-      return new Promise<never>(() => {})
+      // Already on /login: fall through to a normal error result instead of
+      // leaving the caller hanging on an unresolved promise.
     }
 
     const result: ApiResult<never> = {
