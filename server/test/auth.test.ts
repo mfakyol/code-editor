@@ -76,6 +76,37 @@ describe('POST /api/auth/login', () => {
       .send({ email: 'wrong@test.com', password: 'nope' })
     expect(res.status).toBe(401)
   })
+
+  it('locks out repeated failed logins for an account with 429', async () => {
+    const email = 'bruteforce@test.com'
+    await registerAgent(app, { email, password: 'Secret123' })
+
+    for (let i = 0; i < 5; i++) {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'wrong' })
+      expect(res.status).toBe(401)
+    }
+
+    const blocked = await request(app)
+      .post('/api/auth/login')
+      .send({ email, password: 'wrong' })
+    expect(blocked.status).toBe(429)
+    expect(blocked.body.code).toBe('RATE_LIMITED')
+    expect(blocked.headers['retry-after']).toBeDefined()
+  })
+
+  it('does not charge successful logins against the brute-force budget', async () => {
+    const email = 'goodlogin@test.com'
+    await registerAgent(app, { email, password: 'Secret123' })
+
+    for (let i = 0; i < 8; i++) {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'Secret123' })
+      expect(res.status).toBe(200)
+    }
+  })
 })
 
 describe('GET /api/auth/me', () => {
