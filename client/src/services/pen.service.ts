@@ -43,12 +43,25 @@ export type PenInput = {
   settings: PenSettings
 }
 
-function list() {
-  return api.get<{ pens: PenSummary[] }>('/pens')
+export const PAGE_SIZE = 12
+
+type PageParams = { limit?: number; offset?: number }
+
+function query(params: Record<string, string | number | undefined>): string {
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') search.set(key, String(value))
+  }
+  const str = search.toString()
+  return str ? `?${str}` : ''
 }
 
-function publicList(sort: 'recent' | 'popular' = 'recent') {
-  return api.get<{ pens: PublicPen[] }>(`/pens/public?sort=${sort}`)
+function list(params: PageParams = {}) {
+  return api.get<{ pens: PenSummary[] }>(`/pens${query({ ...params })}`)
+}
+
+function publicList(sort: 'recent' | 'popular' = 'recent', params: PageParams = {}) {
+  return api.get<{ pens: PublicPen[] }>(`/pens/public${query({ sort, ...params })}`)
 }
 
 function get(id: string) {

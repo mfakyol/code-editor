@@ -175,12 +175,16 @@ const tr = {
   'myPens.public': 'Açık',
   'myPens.private': 'Gizli',
   'myPens.deleteAria': 'Pen’i sil',
+  'myPens.loadMore': 'Daha fazla yükle',
+  'myPens.loadingMore': 'Yükleniyor…',
 
   'explore.title': 'Keşfet',
   'explore.recent': 'Yeni',
   'explore.popular': 'Popüler',
   'explore.loadFailed': 'Pen’ler yüklenemedi',
   'explore.empty': 'Henüz herkese açık pen yok. İlk paylaşan sen ol!',
+  'explore.loadMore': 'Daha fazla yükle',
+  'explore.loadingMore': 'Yükleniyor…',
 
   'profile.notFound': 'Profil bulunamadı',
   'profile.publicPens': '{count} herkese açık pen',
@@ -389,12 +393,16 @@ const en: Record<TranslationKey, string> = {
   'myPens.public': 'Public',
   'myPens.private': 'Private',
   'myPens.deleteAria': 'Delete pen',
+  'myPens.loadMore': 'Load more',
+  'myPens.loadingMore': 'Loading…',
 
   'explore.title': 'Explore',
   'explore.recent': 'Recent',
   'explore.popular': 'Popular',
   'explore.loadFailed': "Couldn't load pens",
   'explore.empty': 'No public pens yet. Be the first to share!',
+  'explore.loadMore': 'Load more',
+  'explore.loadingMore': 'Loading…',
 
   'profile.notFound': 'Profile not found',
   'profile.publicPens': '{count} public pens',
