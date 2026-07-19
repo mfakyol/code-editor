@@ -3,3 +3,7 @@
 
 # Secrets — never commit the real env file
 .env
+
+# OS junk
+.DS_Store
+**/.DS_Store
