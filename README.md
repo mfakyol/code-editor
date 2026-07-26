@@ -7,6 +7,8 @@ likes & comments layer.
 
 **Live demo:** [codeeditor.fatihakyol.com](https://codeeditor.fatihakyol.com/)
 
+![code-editor screenshot](assets/screenshot.png)
+
 ## Features
 
 **Editor & preview**
